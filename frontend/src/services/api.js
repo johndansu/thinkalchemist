@@ -19,8 +19,12 @@ api.interceptors.request.use((config) => {
 });
 
 export const forgeAPI = {
-  transform: async (inputText) => {
-    const response = await api.post('/forge/transform', { inputText });
+  transform: async (inputText, mode = null) => {
+    const payload = { inputText };
+    if (mode) {
+      payload.mode = mode;
+    }
+    const response = await api.post('/forge/transform', payload);
     return response.data;
   },
 };

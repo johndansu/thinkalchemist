@@ -6,6 +6,11 @@ import HomePage from './pages/HomePage';
 import MyCreationsPage from './pages/MyCreationsPage';
 import ProcessesPage from './pages/ProcessesPage';
 import StoragePage from './pages/StoragePage';
+import PersonasPage from './pages/PersonasPage';
+import TimelinePage from './pages/TimelinePage';
+import PurificationPage from './pages/PurificationPage';
+import StressTestPage from './pages/StressTestPage';
+import WorldBuildingPage from './pages/WorldBuildingPage';
 import AuthPage from './pages/AuthPage';
 import './styles/main.css';
 
@@ -48,6 +53,26 @@ function AppContent() {
           <Route 
             path="/processes" 
             element={<ProcessesPage />} 
+          />
+          <Route 
+            path="/processes/personas" 
+            element={<PersonasPage isAuthenticated={isAuthenticated} />} 
+          />
+          <Route 
+            path="/processes/timeline" 
+            element={<TimelinePage isAuthenticated={isAuthenticated} />} 
+          />
+          <Route 
+            path="/processes/purification" 
+            element={<PurificationPage isAuthenticated={isAuthenticated} />} 
+          />
+          <Route 
+            path="/processes/stress-test" 
+            element={<StressTestPage isAuthenticated={isAuthenticated} />} 
+          />
+          <Route 
+            path="/processes/world-building" 
+            element={<WorldBuildingPage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
             path="/creations" 

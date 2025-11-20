@@ -114,7 +114,10 @@ function ProcessesPage() {
               </ul>
             </div>
 
-            <Link to="/forge" className="process-try-button">
+            <Link 
+              to={`/processes/${process.id === 'stress-test' ? 'stress-test' : process.id === 'world-building' ? 'world-building' : process.id}`} 
+              className="process-try-button"
+            >
               Try This Process
             </Link>
           </div>
