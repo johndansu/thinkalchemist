@@ -1,38 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InteractiveInput from '../components/InteractiveInput';
-import EnhancedForgeButton from '../components/EnhancedForgeButton';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaGlobe, FaUser, FaMap, FaBook, FaTheaterMasks, FaSave, FaDownload, FaExpand } from 'react-icons/fa';
+import { FaGlobe, FaUser, FaMap, FaBook, FaTheaterMasks, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
 
 function WorldBuildingPage({ isAuthenticated }) {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState('overview'); // overview, setting, characters, conflict, story
+  const [activeSection, setActiveSection] = useState('overview');
   const [expandedCards, setExpandedCards] = useState({});
-
-  const worldBuildingExamples = [
-    {
-      title: 'Fantasy World',
-      text: 'A world where memories can be traded as currency, and the rich live forever by hoarding the memories of others, while the poor forget their pasts.',
-      preview: 'Memory-based economy fantasy world...',
-      category: 'Fantasy'
-    },
-    {
-      title: 'Sci-Fi Setting',
-      text: 'A distant planet where time moves differently, and explorers must navigate temporal rifts that connect different eras of the planet\'s history.',
-      preview: 'Time-bending sci-fi planet...',
-      category: 'Sci-Fi'
-    },
-    {
-      title: 'Urban Fantasy',
-      text: 'A modern city where magical creatures live hidden among humans, and a secret organization maintains the balance between the two worlds.',
-      preview: 'Hidden magical world in modern city...',
-      category: 'Urban Fantasy'
-    }
-  ];
 
   const handleForge = async () => {
     if (!inputText.trim()) return;
@@ -61,12 +38,7 @@ function WorldBuildingPage({ isAuthenticated }) {
 
     try {
       const title = inputText.substring(0, 50) + (inputText.length > 50 ? '...' : '');
-      await savedAPI.save(
-        title,
-        inputText,
-        output,
-        'world_building'
-      );
+      await savedAPI.save(title, inputText, output, 'world_building');
       alert('Saved to your library.');
     } catch (error) {
       console.error('Save error:', error);
@@ -84,101 +56,110 @@ function WorldBuildingPage({ isAuthenticated }) {
   const worldBuilding = output?.results?.worldBuilding;
 
   return (
-    <div className="page-container process-page world-building-page-specialized">
-      <div className="process-header">
-        <div className="process-header-icon">
-          <FaGlobe />
+    <div className="creative-workspace-interface">
+      {/* Creative Notebook Input */}
+      <div className="notebook-container">
+        <div className="notebook-header">
+          <div className="notebook-icon">
+            <FaGlobe />
+          </div>
+          <div>
+            <h1>Creative Notebook</h1>
+            <p>Enter your creative concept to build a world</p>
+          </div>
         </div>
-        <h1>World-Building Alchemy</h1>
-        <p className="process-description-header">
-          Expand your creative concepts into rich settings, characters, conflicts, and immersive micro-stories.
-        </p>
-      </div>
 
-      {/* Input Section */}
-      <div className="world-building-input-section">
-        <InteractiveInput 
-          value={inputText} 
-          onChange={setInputText}
-          placeholder="Enter your creative concept, fantasy/sci-fi idea, or story seed..."
-          examples={worldBuildingExamples}
-          showTemplates={true}
-        />
-        <div className="world-building-forge-action">
-          <EnhancedForgeButton 
-            onClick={handleForge} 
-            loading={loading} 
-            disabled={!inputText.trim()}
-            mode="world_building"
-          />
-        </div>
-      </div>
-
-      {/* Creative Canvas Workspace */}
-      {output && worldBuilding && (
-        <div className="world-building-canvas">
-          <div className="canvas-header">
-            <div className="canvas-title-section">
-              <h2>World Building Canvas</h2>
-              <span className="world-status">World Created</span>
+        <div className="notebook-page">
+          <div className="notebook-margin">
+            <div className="margin-line"></div>
+          </div>
+          <div className="notebook-content">
+            <textarea
+              className="notebook-textarea"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Write your creative concept, fantasy/sci-fi idea, or story seed here..."
+              rows={10}
+            />
+            <div className="notebook-footer">
+              <button
+                className="build-world-btn"
+                onClick={handleForge}
+                disabled={!inputText.trim() || loading}
+              >
+                {loading ? 'Building World...' : (
+                  <>
+                    <FaPaperPlane /> Build World
+                  </>
+                )}
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="canvas-actions">
+      {/* World Building Canvas */}
+      {output && worldBuilding && (
+        <div className="world-canvas">
+          <div className="canvas-header-bar">
+            <div className="canvas-title">
+              <h2>World Building Canvas</h2>
+              <span className="world-status-badge">World Created</span>
+            </div>
+            <div className="canvas-actions-bar">
               {isAuthenticated && (
-                <button onClick={handleSave} className="canvas-action-btn save">
+                <button onClick={handleSave} className="canvas-action save-action">
                   <FaSave /> Save World
                 </button>
               )}
-              <button className="canvas-action-btn export">
+              <button className="canvas-action export-action">
                 <FaDownload /> Export
               </button>
             </div>
           </div>
 
-          {/* Section Navigation */}
-          <div className="world-sections-nav">
+          <div className="world-sections-tabs">
             <button
-              className={`section-nav-btn ${activeSection === 'overview' ? 'active' : ''}`}
+              className={`world-tab ${activeSection === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveSection('overview')}
             >
               <FaGlobe /> Overview
             </button>
             <button
-              className={`section-nav-btn ${activeSection === 'setting' ? 'active' : ''}`}
+              className={`world-tab ${activeSection === 'setting' ? 'active' : ''}`}
               onClick={() => setActiveSection('setting')}
             >
               <FaMap /> Setting
             </button>
             <button
-              className={`section-nav-btn ${activeSection === 'characters' ? 'active' : ''}`}
+              className={`world-tab ${activeSection === 'characters' ? 'active' : ''}`}
               onClick={() => setActiveSection('characters')}
             >
               <FaUser /> Characters ({worldBuilding.characters?.length || 0})
             </button>
             <button
-              className={`section-nav-btn ${activeSection === 'conflict' ? 'active' : ''}`}
+              className={`world-tab ${activeSection === 'conflict' ? 'active' : ''}`}
               onClick={() => setActiveSection('conflict')}
             >
               <FaTheaterMasks /> Conflict
             </button>
             <button
-              className={`section-nav-btn ${activeSection === 'story' ? 'active' : ''}`}
+              className={`world-tab ${activeSection === 'story' ? 'active' : ''}`}
               onClick={() => setActiveSection('story')}
             >
               <FaBook /> Story
             </button>
           </div>
 
-          {/* Content Area */}
-          <div className="world-content-area">
+          <div className="world-content-panel">
             {activeSection === 'overview' && (
-              <div className="world-overview-grid">
+              <div className="overview-cards">
                 <div className="world-card setting-card">
                   <div className="card-header">
                     <FaMap className="card-icon" />
                     <h3>Setting</h3>
                   </div>
-                  <div className="card-content">
+                  <div className="card-body">
                     <p>{worldBuilding.setting}</p>
                   </div>
                 </div>
@@ -189,7 +170,7 @@ function WorldBuildingPage({ isAuthenticated }) {
                       <FaMap className="card-icon" />
                       <h3>Map Description</h3>
                     </div>
-                    <div className="card-content">
+                    <div className="card-body">
                       <p>{worldBuilding.map_description}</p>
                     </div>
                   </div>
@@ -201,7 +182,7 @@ function WorldBuildingPage({ isAuthenticated }) {
                       <FaTheaterMasks className="card-icon" />
                       <h3>Tone</h3>
                     </div>
-                    <div className="card-content">
+                    <div className="card-body">
                       <p>{worldBuilding.tone}</p>
                     </div>
                   </div>
@@ -228,8 +209,8 @@ function WorldBuildingPage({ isAuthenticated }) {
               <div className="characters-panel">
                 <div className="characters-grid">
                   {worldBuilding.characters.map((char, idx) => (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       className={`character-card ${expandedCards[`char-${idx}`] ? 'expanded' : ''}`}
                     >
                       <div className="character-header">
@@ -238,13 +219,13 @@ function WorldBuildingPage({ isAuthenticated }) {
                           <span className="character-role">{char.role}</span>
                         </div>
                         <button
-                          className="expand-btn"
+                          className="expand-character-btn"
                           onClick={() => toggleCard(`char-${idx}`)}
                         >
                           <FaExpand />
                         </button>
                       </div>
-                      <div className="character-content">
+                      <div className="character-body">
                         <p>{char.description}</p>
                       </div>
                     </div>
@@ -277,11 +258,9 @@ function WorldBuildingPage({ isAuthenticated }) {
       )}
 
       {loading && (
-        <div className="world-building-loading">
-          <div className="loading-animation">
-            <div className="loading-spinner"></div>
-            <p>Building your world...</p>
-          </div>
+        <div className="world-loading">
+          <div className="loading-spinner"></div>
+          <p>Building your world...</p>
         </div>
       )}
     </div>

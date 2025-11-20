@@ -1,38 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InteractiveInput from '../components/InteractiveInput';
-import EnhancedForgeButton from '../components/EnhancedForgeButton';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaSave, FaDownload, FaLightbulb } from 'react-icons/fa';
+import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
 
 function StressTestPage({ isAuthenticated }) {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, risks, improvement
-  const [riskLevel, setRiskLevel] = useState('all'); // all, high, medium, low
-
-  const stressTestExamples = [
-    {
-      title: 'SaaS Startup',
-      text: 'A subscription-based project management tool for remote teams with AI-powered task prioritization and automated reporting.',
-      preview: 'SaaS project management tool idea...',
-      category: 'SaaS'
-    },
-    {
-      title: 'E-commerce Feature',
-      text: 'A new feature that allows customers to virtually try on clothes using AR technology before purchasing online.',
-      preview: 'AR virtual try-on feature...',
-      category: 'E-commerce'
-    },
-    {
-      title: 'Mobile App',
-      text: 'A fitness app that uses AI to create personalized workout plans based on user goals, fitness level, and available equipment.',
-      preview: 'AI-powered fitness app...',
-      category: 'Mobile'
-    }
-  ];
+  const [activeTab, setActiveTab] = useState('overview');
+  const [riskLevel, setRiskLevel] = useState('all');
 
   const handleForge = async () => {
     if (!inputText.trim()) return;
@@ -61,12 +38,7 @@ function StressTestPage({ isAuthenticated }) {
 
     try {
       const title = inputText.substring(0, 50) + (inputText.length > 50 ? '...' : '');
-      await savedAPI.save(
-        title,
-        inputText,
-        output,
-        'stress_test'
-      );
+      await savedAPI.save(title, inputText, output, 'stress_test');
       alert('Saved to your library.');
     } catch (error) {
       console.error('Save error:', error);
@@ -78,121 +50,131 @@ function StressTestPage({ isAuthenticated }) {
   const risks = stressTest?.hidden_risks || [];
 
   return (
-    <div className="page-container process-page stress-test-page-specialized">
-      <div className="process-header">
-        <div className="process-header-icon">
-          <FaSearch />
+    <div className="business-analysis-interface">
+      {/* Business Analysis Form */}
+      <div className="analysis-form-container">
+        <div className="analysis-form-header">
+          <div className="form-header-icon">
+            <FaSearch />
+          </div>
+          <div>
+            <h1>Business Idea Analysis</h1>
+            <p>Submit your idea for comprehensive stress testing</p>
+          </div>
         </div>
-        <h1>Idea Stress Test Engine</h1>
-        <p className="process-description-header">
-          Get a reality check on your ideas with best-case scenarios, risks, and improvement suggestions.
-        </p>
-      </div>
 
-      {/* Input Section */}
-      <div className="stress-test-input-section">
-        <InteractiveInput 
-          value={inputText} 
-          onChange={setInputText}
-          placeholder="Describe your business idea, product concept, or strategic plan..."
-          examples={stressTestExamples}
-          showTemplates={true}
-        />
-        <div className="stress-test-forge-action">
-          <EnhancedForgeButton 
-            onClick={handleForge} 
-            loading={loading} 
-            disabled={!inputText.trim()}
-            mode="stress_test"
-          />
+        <div className="analysis-form-body">
+          <div className="form-field">
+            <label className="form-label">
+              <FaFileAlt className="label-icon" />
+              Business Idea Description
+            </label>
+            <textarea
+              className="analysis-textarea"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Describe your business idea, product concept, or strategic plan in detail..."
+              rows={6}
+            />
+            <div className="form-actions">
+              <button
+                className="analyze-btn"
+                onClick={handleForge}
+                disabled={!inputText.trim() || loading}
+              >
+                {loading ? 'Analyzing...' : (
+                  <>
+                    <FaPaperPlane /> Analyze Idea
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Analysis Dashboard */}
       {output && stressTest && (
-        <div className="stress-test-dashboard">
-          <div className="dashboard-header">
-            <div className="dashboard-title-section">
-              <h2>Idea Analysis Dashboard</h2>
-              <span className="analysis-status">Analysis Complete</span>
+        <div className="analysis-dashboard">
+          <div className="dashboard-header-bar">
+            <div className="dashboard-title">
+              <h2>Analysis Report</h2>
+              <span className="report-status">Complete</span>
             </div>
-
-            <div className="dashboard-actions">
+            <div className="dashboard-actions-bar">
               {isAuthenticated && (
-                <button onClick={handleSave} className="dashboard-action-btn save">
-                  <FaSave /> Save Analysis
+                <button onClick={handleSave} className="action-button save-button">
+                  <FaSave /> Save Report
                 </button>
               )}
-              <button className="dashboard-action-btn export">
-                <FaDownload /> Export Report
+              <button className="action-button export-button">
+                <FaDownload /> Export
               </button>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="analysis-tabs">
+          <div className="analysis-tabs-bar">
             <button
-              className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+              className={`analysis-tab ${activeTab === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveTab('overview')}
             >
               <FaChartLine /> Overview
             </button>
             <button
-              className={`tab-btn ${activeTab === 'risks' ? 'active' : ''}`}
+              className={`analysis-tab ${activeTab === 'risks' ? 'active' : ''}`}
               onClick={() => setActiveTab('risks')}
             >
               <FaExclamationTriangle /> Risks ({risks.length})
             </button>
             <button
-              className={`tab-btn ${activeTab === 'improvement' ? 'active' : ''}`}
+              className={`analysis-tab ${activeTab === 'improvement' ? 'active' : ''}`}
               onClick={() => setActiveTab('improvement')}
             >
               <FaLightbulb /> Improvement
             </button>
           </div>
 
-          {/* Tab Content */}
-          <div className="analysis-content">
+          <div className="analysis-content-area">
             {activeTab === 'overview' && (
-              <div className="overview-grid">
-                <div className="analysis-card best-case">
+              <div className="overview-cards-grid">
+                <div className="analysis-card best-case-card">
                   <div className="card-header">
                     <FaArrowUp className="card-icon" />
-                    <h3>Best Case Scenario</h3>
+                    <h3>Best Case</h3>
                   </div>
-                  <div className="card-content">
+                  <div className="card-body">
                     <p>{stressTest.best_case}</p>
                   </div>
                 </div>
 
-                <div className="analysis-card worst-case">
+                <div className="analysis-card worst-case-card">
                   <div className="card-header">
                     <FaArrowDown className="card-icon" />
-                    <h3>Worst Case Scenario</h3>
+                    <h3>Worst Case</h3>
                   </div>
-                  <div className="card-content">
+                  <div className="card-body">
                     <p>{stressTest.worst_case}</p>
                   </div>
                 </div>
 
-                <div className="analysis-card pitch">
+                <div className="analysis-card pitch-card">
                   <div className="card-header">
                     <FaRocket className="card-icon" />
                     <h3>One-Line Pitch</h3>
                   </div>
-                  <div className="card-content">
+                  <div className="card-body">
                     <p className="pitch-text">{stressTest.one_line_pitch}</p>
                   </div>
                 </div>
 
-                <div className="analysis-card viability">
+                <div className="analysis-card viability-card">
                   <div className="card-header">
                     <FaChartLine className="card-icon" />
                     <h3>Viability Score</h3>
                   </div>
-                  <div className="card-content">
+                  <div className="card-body">
                     <div className="viability-meter">
-                      <div className="meter-fill" style={{ width: '65%' }}></div>
+                      <div className="meter-bar" style={{ width: '65%' }}></div>
                       <span className="meter-label">Moderate-High</span>
                     </div>
                   </div>
@@ -204,13 +186,13 @@ function StressTestPage({ isAuthenticated }) {
               <div className="risks-panel">
                 <div className="risk-filter-bar">
                   <button
-                    className={`risk-filter-btn ${riskLevel === 'all' ? 'active' : ''}`}
+                    className={`risk-filter ${riskLevel === 'all' ? 'active' : ''}`}
                     onClick={() => setRiskLevel('all')}
                   >
                     All Risks ({risks.length})
                   </button>
                   <button
-                    className={`risk-filter-btn ${riskLevel === 'high' ? 'active' : ''}`}
+                    className={`risk-filter ${riskLevel === 'high' ? 'active' : ''}`}
                     onClick={() => setRiskLevel('high')}
                   >
                     High Priority
@@ -219,13 +201,13 @@ function StressTestPage({ isAuthenticated }) {
 
                 <div className="risks-list">
                   {risks.map((risk, idx) => (
-                    <div key={idx} className="risk-item">
+                    <div key={idx} className="risk-item-card">
                       <div className="risk-header">
                         <FaExclamationTriangle className="risk-icon" />
                         <h4>Risk #{idx + 1}</h4>
-                        <span className="risk-badge high">High Priority</span>
+                        <span className="risk-badge">High</span>
                       </div>
-                      <p className="risk-description">{risk}</p>
+                      <p className="risk-text">{risk}</p>
                     </div>
                   ))}
                 </div>
@@ -236,18 +218,14 @@ function StressTestPage({ isAuthenticated }) {
               <div className="improvement-panel">
                 <div className="improvement-header">
                   <FaLightbulb className="improvement-icon" />
-                  <h3>10× Improvement Suggestion</h3>
+                  <h3>10× Improvement Strategy</h3>
                 </div>
                 <div className="improvement-content">
                   <p>{stressTest.improvement_suggestion}</p>
                 </div>
                 <div className="improvement-actions">
-                  <button className="improvement-btn primary">
-                    Apply This Strategy
-                  </button>
-                  <button className="improvement-btn secondary">
-                    Learn More
-                  </button>
+                  <button className="strategy-btn primary">Apply Strategy</button>
+                  <button className="strategy-btn secondary">Learn More</button>
                 </div>
               </div>
             )}
@@ -256,11 +234,9 @@ function StressTestPage({ isAuthenticated }) {
       )}
 
       {loading && (
-        <div className="stress-test-loading">
-          <div className="loading-animation">
-            <div className="loading-spinner"></div>
-            <p>Analyzing your idea...</p>
-          </div>
+        <div className="analysis-loading">
+          <div className="loading-spinner"></div>
+          <p>Conducting comprehensive analysis...</p>
         </div>
       )}
     </div>
