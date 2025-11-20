@@ -806,6 +806,15 @@ header:not(.main-nav header) h1 {
   text-align: center;
   padding: 3rem;
   color: var(--burnt-umber);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: var(--burnt-umber);
 }
 
 .forge-grid {
@@ -1095,6 +1104,440 @@ header:not(.main-nav header) h1 {
   background: var(--soft-gold);
 }
 
+/* Processes Page */
+.processes-page {
+  max-width: 1200px;
+}
+
+.processes-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.processes-header h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--charcoal);
+  margin-bottom: 1rem;
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  color: var(--burnt-umber);
+  font-style: italic;
+}
+
+.processes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.process-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 2px solid var(--soft-gold);
+  border-left: 6px solid var(--soft-gold);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.process-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.process-icon {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--deep-sand);
+}
+
+.process-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.process-card h2 {
+  color: var(--charcoal);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.process-description {
+  color: var(--charcoal);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.process-use-case {
+  background: var(--warm-off-white);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--charcoal);
+}
+
+.process-use-case strong {
+  color: var(--burnt-umber);
+}
+
+.process-output {
+  margin-bottom: 1.5rem;
+}
+
+.process-output strong {
+  color: var(--burnt-umber);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.process-output ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.process-output li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: var(--charcoal);
+}
+
+.process-output li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--soft-gold);
+  font-weight: bold;
+}
+
+.process-try-button {
+  display: inline-block;
+  background: var(--deep-sand);
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: background 0.3s;
+  text-align: center;
+  width: 100%;
+}
+
+.process-try-button:hover {
+  background: var(--soft-gold);
+}
+
+.processes-cta {
+  text-align: center;
+  padding: 3rem;
+  background: var(--charcoal);
+  color: white;
+  border-radius: 12px;
+  margin-top: 3rem;
+}
+
+.processes-cta h2 {
+  color: white;
+  font-size: 2rem;
+  font-weight: 300;
+  margin-bottom: 1rem;
+}
+
+.processes-cta p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+/* Storage Page */
+.storage-page {
+  max-width: 1400px;
+}
+
+.storage-header {
+  margin-bottom: 2rem;
+}
+
+.storage-header h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--charcoal);
+  margin-bottom: 0.5rem;
+}
+
+.storage-controls {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 2px solid var(--soft-gold);
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--charcoal);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--soft-gold);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-buttons button {
+  background: transparent;
+  border: 2px solid var(--charcoal);
+  color: var(--charcoal);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.filter-buttons button:hover,
+.filter-buttons button.filter-active {
+  background: var(--charcoal);
+  color: white;
+}
+
+.storage-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.storage-list h2 {
+  color: var(--charcoal);
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+}
+
+.forge-list-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.forge-card-detailed {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 2px solid var(--soft-gold);
+  border-left: 6px solid var(--soft-gold);
+}
+
+.forge-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.forge-card-header h3 {
+  color: var(--charcoal);
+  font-size: 1.2rem;
+  font-weight: 600;
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.forge-mode-badge {
+  background: var(--warm-off-white);
+  color: var(--burnt-umber);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.forge-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--burnt-umber);
+}
+
+.forge-preview {
+  color: var(--charcoal);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.forge-actions-detailed {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  font-family: inherit;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.action-btn.view {
+  background: var(--deep-sand);
+  color: white;
+}
+
+.action-btn.view:hover {
+  background: var(--soft-gold);
+}
+
+.action-btn.reforge {
+  background: var(--soft-gold);
+  color: white;
+}
+
+.action-btn.reforge:hover {
+  background: var(--deep-sand);
+}
+
+.action-btn.export {
+  background: transparent;
+  color: var(--charcoal);
+  border: 2px solid var(--charcoal);
+}
+
+.action-btn.export:hover {
+  background: var(--charcoal);
+  color: white;
+}
+
+.action-btn.delete {
+  background: #d32f2f;
+  color: white;
+}
+
+.action-btn.delete:hover {
+  background: #b71c1c;
+}
+
+.storage-detail-panel {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: 2px solid var(--soft-gold);
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+.detail-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--soft-gold);
+}
+
+.detail-panel-header h2 {
+  color: var(--charcoal);
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+
+.detail-panel-header button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--charcoal);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-panel-header button:hover {
+  color: var(--burnt-umber);
+}
+
+.input-text-display {
+  background: var(--warm-off-white);
+  padding: 1rem;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.output-display {
+  background: var(--warm-off-white);
+  padding: 1rem;
+  border-radius: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.output-display pre {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--charcoal);
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.detail-actions button {
+  width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
@@ -1196,6 +1639,36 @@ header:not(.main-nav header) h1 {
   .hero-actions .secondary-button {
     width: 100%;
     text-align: center;
+  }
+
+  .processes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .storage-content {
+    grid-template-columns: 1fr;
+  }
+
+  .storage-detail-panel {
+    position: relative;
+    max-height: none;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+  }
+
+  .filter-buttons button {
+    width: 100%;
+  }
+
+  .forge-actions-detailed {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

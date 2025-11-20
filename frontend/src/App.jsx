@@ -4,6 +4,8 @@ import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import MyCreationsPage from './pages/MyCreationsPage';
+import ProcessesPage from './pages/ProcessesPage';
+import StoragePage from './pages/StoragePage';
 import AuthPage from './pages/AuthPage';
 import './styles/main.css';
 
@@ -44,8 +46,16 @@ function AppContent() {
             element={<HomePage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
+            path="/processes" 
+            element={<ProcessesPage />} 
+          />
+          <Route 
             path="/creations" 
             element={<MyCreationsPage />} 
+          />
+          <Route 
+            path="/storage" 
+            element={<StoragePage />} 
           />
           <Route 
             path="/auth" 

@@ -43,6 +43,12 @@ function Navigation({ isAuthenticated, onSignOut }) {
           >
             Forge
           </Link>
+          <Link 
+            to="/processes" 
+            className={location.pathname === '/processes' ? 'active' : ''}
+          >
+            Processes
+          </Link>
           
           {isAuthenticated ? (
             <>
@@ -51,6 +57,12 @@ function Navigation({ isAuthenticated, onSignOut }) {
                 className={location.pathname === '/creations' ? 'active' : ''}
               >
                 My Creations
+              </Link>
+              <Link 
+                to="/storage" 
+                className={location.pathname === '/storage' ? 'active' : ''}
+              >
+                Storage
               </Link>
               <button onClick={handleSignOut} className="nav-button">
                 Sign Out
