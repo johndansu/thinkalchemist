@@ -4,7 +4,7 @@ import PersonaCard from '../components/PersonaCard';
 import { forgeAPI, savedAPI } from '../services/api';
 import { FaUsers, FaFilter, FaTable, FaTh, FaChartBar, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
-function PersonasPage({ isAuthenticated }) {
+function PersonasPage() {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
@@ -30,11 +30,6 @@ function PersonasPage({ isAuthenticated }) {
   };
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
     if (!output) return;
 
     try {
@@ -132,11 +127,9 @@ function PersonasPage({ isAuthenticated }) {
                 </button>
               </div>
               <div className="dashboard-actions">
-                {isAuthenticated && (
-                  <button onClick={handleSave} className="action-btn save-btn">
-                    <FaSave /> Save Research
-                  </button>
-                )}
+                <button onClick={handleSave} className="action-btn save-btn">
+                  <FaSave /> Save Research
+                </button>
                 <button className="action-btn export-btn">
                   <FaDownload /> Export
                 </button>

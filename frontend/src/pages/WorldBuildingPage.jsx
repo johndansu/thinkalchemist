@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
 import { FaGlobe, FaUser, FaMap, FaBook, FaTheaterMasks, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
-function WorldBuildingPage({ isAuthenticated }) {
+function WorldBuildingPage() {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
@@ -29,11 +29,6 @@ function WorldBuildingPage({ isAuthenticated }) {
   };
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
     if (!output) return;
 
     try {
@@ -116,11 +111,9 @@ function WorldBuildingPage({ isAuthenticated }) {
               <span className="world-status-badge">World Created</span>
             </div>
             <div className="canvas-actions-bar">
-              {isAuthenticated && (
-                <button onClick={handleSave} className="canvas-action save-action">
-                  <FaSave /> Save World
-                </button>
-              )}
+              <button onClick={handleSave} className="canvas-action save-action">
+                <FaSave /> Save World
+              </button>
               <button className="canvas-action export-action">
                 <FaDownload /> Export
               </button>

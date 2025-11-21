@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
 import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
-function PurificationPage({ isAuthenticated }) {
+function PurificationPage() {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
@@ -29,11 +29,6 @@ function PurificationPage({ isAuthenticated }) {
   };
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
     if (!output) return;
 
     try {
@@ -139,11 +134,9 @@ function PurificationPage({ isAuthenticated }) {
                 >
                   <FaSync /> {showChanges ? 'Hide' : 'Show'} Changes
                 </button>
-                {isAuthenticated && (
-                  <button onClick={handleSave} className="comparison-btn save-btn">
-                    <FaSave /> Save
-                  </button>
-                )}
+                <button onClick={handleSave} className="comparison-btn save-btn">
+                  <FaSave /> Save Document
+                </button>
                 <button className="comparison-btn export-btn">
                   <FaDownload /> Export
                 </button>

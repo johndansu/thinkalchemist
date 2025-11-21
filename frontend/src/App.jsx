@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import MyCreationsPage from './pages/MyCreationsPage';
@@ -14,30 +14,9 @@ import AuthPage from './pages/AuthPage';
 import './styles/main.css';
 
 function AppContent() {
-  const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem('auth_token')
-  );
-
-  useEffect(() => {
-    // Check auth status on route change
-    setIsAuthenticated(!!localStorage.getItem('auth_token'));
-  }, [location]);
-
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
-  };
-
   return (
     <div className="app">
-      <Navigation 
-        isAuthenticated={isAuthenticated} 
-        onSignOut={handleSignOut}
-      />
+      <Navigation />
       
       <main className="main-content">
         <Routes>
@@ -51,23 +30,23 @@ function AppContent() {
           />
           <Route 
             path="/forge/personas" 
-            element={<PersonasPage isAuthenticated={isAuthenticated} />} 
+            element={<PersonasPage />} 
           />
           <Route 
             path="/forge/timeline" 
-            element={<TimelinePage isAuthenticated={isAuthenticated} />} 
+            element={<TimelinePage />} 
           />
           <Route 
             path="/forge/purification" 
-            element={<PurificationPage isAuthenticated={isAuthenticated} />} 
+            element={<PurificationPage />} 
           />
           <Route 
             path="/forge/stress-test" 
-            element={<StressTestPage isAuthenticated={isAuthenticated} />} 
+            element={<StressTestPage />} 
           />
           <Route 
             path="/forge/world-building" 
-            element={<WorldBuildingPage isAuthenticated={isAuthenticated} />} 
+            element={<WorldBuildingPage />} 
           />
           <Route 
             path="/creations" 
@@ -79,7 +58,7 @@ function AppContent() {
           />
           <Route 
             path="/auth" 
-            element={<AuthPage onAuthSuccess={handleAuthSuccess} />} 
+            element={<AuthPage />} 
           />
         </Routes>
       </main>

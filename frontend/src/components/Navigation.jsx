@@ -1,22 +1,8 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { Link, useLocation } from 'react-router-dom';
 
-function Navigation({ isAuthenticated, onSignOut }) {
+function Navigation() {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    try {
-      await authAPI.signout();
-      if (onSignOut) {
-        onSignOut();
-      }
-      navigate('/');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
 
   return (
     <nav className="main-nav">
@@ -44,32 +30,12 @@ function Navigation({ isAuthenticated, onSignOut }) {
             Forge
           </Link>
           
-          {isAuthenticated ? (
-            <>
-              <Link 
-                to="/creations" 
-                className={location.pathname === '/creations' ? 'active' : ''}
-              >
-                My Creations
-              </Link>
-              <Link 
-                to="/storage" 
-                className={location.pathname === '/storage' ? 'active' : ''}
-              >
-                Storage
-              </Link>
-              <button onClick={handleSignOut} className="nav-button">
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <Link 
-              to="/auth" 
-              className={location.pathname === '/auth' ? 'active' : ''}
-            >
-              Sign In
-            </Link>
-          )}
+          <Link 
+            to="/storage" 
+            className={location.pathname === '/storage' ? 'active' : ''}
+          >
+            Storage
+          </Link>
         </div>
       </div>
     </nav>

@@ -12,11 +12,6 @@ function StoragePage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      navigate('/auth');
-      return;
-    }
     loadForges();
   }, [navigate]);
 
@@ -27,9 +22,6 @@ function StoragePage() {
       setForges(response.forges || []);
     } catch (error) {
       console.error('Failed to load forges:', error);
-      if (error.response?.status === 401) {
-        navigate('/auth');
-      }
     } finally {
       setLoading(false);
     }

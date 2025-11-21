@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
 import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
-function StressTestPage({ isAuthenticated }) {
+function StressTestPage() {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
@@ -29,11 +29,6 @@ function StressTestPage({ isAuthenticated }) {
   };
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
     if (!output) return;
 
     try {
@@ -111,11 +106,9 @@ function StressTestPage({ isAuthenticated }) {
               <span className="report-status">Complete</span>
             </div>
             <div className="dashboard-actions-bar">
-              {isAuthenticated && (
-                <button onClick={handleSave} className="action-button save-button">
-                  <FaSave /> Save Report
-                </button>
-              )}
+              <button onClick={handleSave} className="action-button save-button">
+                <FaSave /> Save Analysis
+              </button>
               <button className="action-button export-button">
                 <FaDownload /> Export
               </button>

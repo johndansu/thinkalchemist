@@ -4,7 +4,7 @@ import TimelineView from '../components/TimelineView';
 import { forgeAPI, savedAPI } from '../services/api';
 import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
-function TimelinePage({ isAuthenticated }) {
+function TimelinePage() {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState('');
   const [output, setOutput] = useState(null);
@@ -31,11 +31,6 @@ function TimelinePage({ isAuthenticated }) {
   };
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
     if (!output) return;
 
     try {
@@ -159,11 +154,9 @@ function TimelinePage({ isAuthenticated }) {
               </div>
 
               <div className="canvas-actions">
-                {isAuthenticated && (
-                  <button onClick={handleSave} className="canvas-btn save-btn">
-                    <FaSave /> Save
-                  </button>
-                )}
+                <button onClick={handleSave} className="canvas-btn save-btn">
+                  <FaSave /> Save Timeline
+                </button>
                 <button className="canvas-btn export-btn">
                   <FaDownload /> Export
                 </button>
