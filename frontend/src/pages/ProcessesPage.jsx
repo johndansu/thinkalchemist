@@ -86,7 +86,7 @@ function ProcessesPage() {
   return (
     <div className="page-container processes-page">
       <div className="processes-header">
-        <h1>Alchemy Processes</h1>
+        <h1>Forge</h1>
         <p className="page-subtitle">
           Discover how Think Alchemist transforms your thoughts into structured knowledge
         </p>
@@ -115,7 +115,7 @@ function ProcessesPage() {
             </div>
 
             <Link 
-              to={`/processes/${process.id === 'stress-test' ? 'stress-test' : process.id === 'world-building' ? 'world-building' : process.id}`} 
+              to={`/forge/${process.id === 'stress-test' ? 'stress-test' : process.id === 'world-building' ? 'world-building' : process.id}`} 
               className="process-try-button"
             >
               Try This Process

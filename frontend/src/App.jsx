@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
-import HomePage from './pages/HomePage';
 import MyCreationsPage from './pages/MyCreationsPage';
 import ProcessesPage from './pages/ProcessesPage';
 import StoragePage from './pages/StoragePage';
@@ -48,30 +47,26 @@ function AppContent() {
           />
           <Route 
             path="/forge" 
-            element={<HomePage isAuthenticated={isAuthenticated} />} 
-          />
-          <Route 
-            path="/processes" 
             element={<ProcessesPage />} 
           />
           <Route 
-            path="/processes/personas" 
+            path="/forge/personas" 
             element={<PersonasPage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
-            path="/processes/timeline" 
+            path="/forge/timeline" 
             element={<TimelinePage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
-            path="/processes/purification" 
+            path="/forge/purification" 
             element={<PurificationPage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
-            path="/processes/stress-test" 
+            path="/forge/stress-test" 
             element={<StressTestPage isAuthenticated={isAuthenticated} />} 
           />
           <Route 
-            path="/processes/world-building" 
+            path="/forge/world-building" 
             element={<WorldBuildingPage isAuthenticated={isAuthenticated} />} 
           />
           <Route 

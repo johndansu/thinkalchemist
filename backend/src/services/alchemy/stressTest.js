@@ -1,19 +1,23 @@
 const { callLLM } = require('../llm');
 
-const STRESS_TEST_PROMPT = `Analyze this business idea or product concept. Provide a reality check. Return JSON with:
-- best_case: Best-case scenario description (string)
-- worst_case: Worst-case scenario description (string)
-- hidden_risks: Array of 3 hidden risks (array of strings)
-- one_line_pitch: One-line pitch for the idea (string)
-- improvement_suggestion: "If I had to make this 10× better..." suggestion (string)
+const STRESS_TEST_PROMPT = `Analyze the following input as a business idea, product concept, or strategic initiative. Provide a professional reality check and strategic analysis.
 
-Be honest and realistic. Identify real risks and opportunities.
+If the input is not explicitly a business idea, interpret it as a concept that could be evaluated strategically, and provide analysis accordingly.
 
-Idea/Concept: {input}`;
+Return JSON with:
+- best_case: Best-case scenario description (string, professional and realistic)
+- worst_case: Worst-case scenario description (string, professional and realistic)
+- hidden_risks: Array of 3-5 hidden risks (array of strings, be specific and professional)
+- one_line_pitch: One-line pitch for the concept (string, compelling and clear)
+- improvement_suggestion: "If I had to make this 10× better..." suggestion (string, actionable and professional)
+
+Be honest, realistic, and maintain a professional consulting tone. Identify real risks and opportunities. Always provide valuable strategic insights.
+
+Concept to analyze: {input}`;
 
 async function stressTestIdea(inputText) {
   const prompt = STRESS_TEST_PROMPT.replace('{input}', inputText);
-  const systemPrompt = 'You are a business analyst. Return valid JSON with all required fields. Be honest and realistic.';
+  const systemPrompt = 'You are a senior business analyst and strategic consultant. Always return valid JSON with all required fields. Be honest, realistic, and maintain professional consulting standards. Provide valuable strategic insights regardless of input type.';
   
   try {
     const { parseJSONResponse } = require('../../utils/jsonParser');

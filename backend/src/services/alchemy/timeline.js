@@ -1,20 +1,22 @@
 const { callLLM } = require('../llm');
 
-const TIMELINE_PROMPT = `Extract and structure events from this text into a chronological timeline. Return JSON with:
+const TIMELINE_PROMPT = `Analyze the following input and extract or create a chronological timeline. If the input doesn't contain explicit events, interpret it as a sequence of logical steps, phases, or developments and structure them chronologically.
+
+Return JSON with:
 - events: Array of event objects, each with:
-  - timestamp: ISO date string or inferred date (string)
+  - timestamp: ISO date string or inferred date/phase (string, use logical progression if dates unavailable)
   - event: Event title (string)
   - description: Detailed description (string)
   - impact: Impact or significance note (string, optional)
-- summary: Brief summary of the timeline (string)
+- summary: Brief professional summary of the timeline (string)
 
-If dates are missing, infer reasonable timestamps based on context. Order events chronologically.
+Always maintain a professional tone. If the input is abstract or non-temporal, create a logical sequence that makes sense. Order events chronologically or logically.
 
-Text: {input}`;
+Input: {input}`;
 
 async function generateTimeline(inputText) {
   const prompt = TIMELINE_PROMPT.replace('{input}', inputText);
-  const systemPrompt = 'You are a timeline extraction expert. Return valid JSON with an "events" array and a "summary" string.';
+  const systemPrompt = 'You are a professional timeline analyst and historian. Always return valid JSON with an "events" array and a "summary" string. Maintain professional quality regardless of input type. If the input lacks explicit events, create a logical chronological structure that makes sense.';
   
   try {
     const { parseJSONResponse } = require('../../utils/jsonParser');

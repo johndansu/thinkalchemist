@@ -45,7 +45,7 @@ function LandingPage() {
         <div className="features-container">
           <h2 className="features-title">What Can You Forge?</h2>
           <div className="features-grid">
-            <Link to="/processes/personas" className="feature-card">
+            <Link to="/forge/personas" className="feature-card">
               <div className="feature-icon">
                 <FaUsers />
               </div>
@@ -53,7 +53,7 @@ function LandingPage() {
               <p>Generate fictional user personas with pain points, preferences, and honest feedback for your product ideas.</p>
             </Link>
             
-            <Link to="/processes/timeline" className="feature-card">
+            <Link to="/forge/timeline" className="feature-card">
               <div className="feature-icon">
                 <FaCalendarAlt />
               </div>
@@ -61,7 +61,7 @@ function LandingPage() {
               <p>Extract and structure events into beautiful chronological timelines with impact analysis.</p>
             </Link>
             
-            <Link to="/processes/purification" className="feature-card">
+            <Link to="/forge/purification" className="feature-card">
               <div className="feature-icon">
                 <FaFileAlt />
               </div>
@@ -69,7 +69,7 @@ function LandingPage() {
               <p>Clean and refine messy text with better grammar, clarity, and structure while maintaining a human tone.</p>
             </Link>
             
-            <Link to="/processes/stress-test" className="feature-card">
+            <Link to="/forge/stress-test" className="feature-card">
               <div className="feature-icon">
                 <FaSearch />
               </div>
@@ -77,7 +77,7 @@ function LandingPage() {
               <p>Get a reality check on your ideas with best-case scenarios, risks, and improvement suggestions.</p>
             </Link>
             
-            <Link to="/processes/world-building" className="feature-card">
+            <Link to="/forge/world-building" className="feature-card">
               <div className="feature-icon">
                 <FaGlobe />
               </div>

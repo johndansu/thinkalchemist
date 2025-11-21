@@ -39,15 +39,9 @@ function Navigation({ isAuthenticated, onSignOut }) {
         <div className="nav-links">
           <Link 
             to="/forge" 
-            className={location.pathname === '/forge' ? 'active' : ''}
+            className={location.pathname.startsWith('/forge') ? 'active' : ''}
           >
             Forge
-          </Link>
-          <Link 
-            to="/processes" 
-            className={location.pathname === '/processes' ? 'active' : ''}
-          >
-            Processes
           </Link>
           
           {isAuthenticated ? (

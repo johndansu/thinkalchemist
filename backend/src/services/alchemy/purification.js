@@ -1,16 +1,20 @@
 const { callLLM } = require('../llm');
 
-const PURIFICATION_PROMPT = `Clean and refine this text. Improve grammar, spelling, clarity, and structure while maintaining a human, natural tone (not AI-generated). Return JSON with:
+const PURIFICATION_PROMPT = `Clean and refine the following text professionally. Improve grammar, spelling, clarity, and structure while maintaining a natural, human tone (not AI-generated). 
+
+If the text is already well-written, make subtle improvements while preserving its character. If it's messy or unstructured, apply professional editing standards.
+
+Return JSON with:
 - cleaned_text: The refined text (string)
-- improvements: Array of improvement types made (e.g., "grammar", "spelling", "structure", "clarity") (array of strings)
+- improvements: Array of improvement types made (e.g., "grammar", "spelling", "structure", "clarity", "formatting") (array of strings)
 
-Maintain the original meaning and tone. Do not make it sound AI-generated.
+Maintain the original meaning and tone. Do not make it sound AI-generated. Always produce professional, polished output.
 
-Original text: {input}`;
+Text to refine: {input}`;
 
 async function purifyDocument(inputText) {
   const prompt = PURIFICATION_PROMPT.replace('{input}', inputText);
-  const systemPrompt = 'You are a professional editor. Return valid JSON with "cleaned_text" and "improvements" array. Write naturally, not like AI.';
+  const systemPrompt = 'You are a professional editor and writing consultant. Always return valid JSON with "cleaned_text" and "improvements" array. Write naturally and professionally, never like AI. Maintain high editorial standards regardless of input quality.';
   
   try {
     const { parseJSONResponse } = require('../../utils/jsonParser');
