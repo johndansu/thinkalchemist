@@ -1,28 +1,40 @@
 const { callLLM } = require('../llm');
 
-const PERSONAS_PROMPT = `Analyze the following input and generate 3-5 fictional user personas. If the input is not a product or business idea, creatively interpret it as a concept that could have users or stakeholders, and generate personas accordingly.
+const PERSONAS_PROMPT = `You are a senior UX researcher and product strategist. Analyze the following input deeply and generate 4-6 highly detailed, realistic user personas that would interact with or be affected by this concept.
 
-For each persona, provide:
-- name: Full name (string)
-- age: Number
-- occupation: String
-- pain_points: Array of 3-5 pain points (strings)
-- likes: Array of 3-5 things they like (strings)
-- dislikes: Array of 3-5 things they dislike (strings)
-- quote: One brutally honest quote about the concept (string)
-- willingness_to_pay: Number 0-10 (score, or 0 if not applicable)
-- background: 2-3 sentence background (string)
-- feedback: Honest feedback about the concept (string)
+CRITICAL REQUIREMENTS:
+- Each persona must be a fully realized individual, not a stereotype
+- Include diverse demographics: age (20s-60s), occupations, backgrounds, tech-savviness, income levels
+- Make personas feel like real people with authentic motivations and behaviors
+- Pain points must be specific, relatable, and directly relevant
+- Feedback should be brutally honest, as if from a real user interview
 
-Write like a professional product researcher. Be specific, realistic, and maintain a professional tone even if the input seems unrelated. Make personas diverse in age, occupation, and perspective. Always produce high-quality, professional personas regardless of input type.
+For each persona, provide EXACTLY:
+- name: Full name (string) - use realistic, diverse names
+- age: Number (20-70)
+- occupation: String - be specific (e.g., "Senior Marketing Manager at a mid-size tech company" not just "Marketing Manager")
+- pain_points: Array of 4-6 specific pain points (strings) - make them detailed and contextual
+- likes: Array of 4-6 things they genuinely like (strings) - be specific and realistic
+- dislikes: Array of 4-6 things they genuinely dislike (strings) - be specific and realistic
+- quote: One brutally honest, authentic quote about the concept (string) - should sound like a real person speaking, 1-2 sentences
+- willingness_to_pay: Number 0-10 (score) - be realistic based on their profile
+- background: 3-4 sentence detailed background (string) - include education, career path, life situation, personality traits
+- feedback: 2-3 sentence honest, detailed feedback about the concept (string) - should feel like real user research feedback
 
-Return JSON with a "personas" array containing all personas.
+QUALITY STANDARDS:
+- Each persona should feel like you could meet them in real life
+- Avoid generic descriptions - be specific and vivid
+- Ensure personas represent different user segments and use cases
+- Make pain points and feedback directly relevant to the input concept
+- Write in a professional but human tone
 
-Input: {input}`;
+Return JSON with a "personas" array containing all personas. Minimum 4 personas, ideally 5-6.
+
+Input to analyze: {input}`;
 
 async function generatePersonas(inputText) {
   const prompt = PERSONAS_PROMPT.replace('{input}', inputText);
-  const systemPrompt = 'You are an expert product researcher and UX strategist. Always return valid JSON with a "personas" array. Each persona must be realistic, diverse, and professionally crafted. Maintain a high standard of quality regardless of input type. If the input is not a traditional product idea, creatively adapt it while maintaining professional standards.';
+  const systemPrompt = 'You are a world-class UX researcher with 15+ years of experience at top tech companies. You specialize in creating deeply insightful, realistic user personas based on extensive research. Your personas are used by Fortune 500 companies for product strategy. Always return valid JSON with a "personas" array. Each persona must be: (1) Highly detailed and realistic, (2) Diverse in demographics and perspectives, (3) Based on real user research principles, (4) Professionally crafted with specific, authentic details. Never create generic or stereotypical personas. Think deeply about how different types of people would actually interact with the concept. Maintain exceptional quality standards - these personas should feel like real people you interviewed.';
   
   try {
     const { parseJSONResponse } = require('../../utils/jsonParser');

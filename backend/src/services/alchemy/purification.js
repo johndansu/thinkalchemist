@@ -1,20 +1,37 @@
 const { callLLM } = require('../llm');
 
-const PURIFICATION_PROMPT = `Clean and refine the following text professionally. Improve grammar, spelling, clarity, and structure while maintaining a natural, human tone (not AI-generated). 
+const PURIFICATION_PROMPT = `You are a professional editor and writing consultant with expertise in refining text to publication standards. Analyze and improve the following text comprehensively.
 
-If the text is already well-written, make subtle improvements while preserving its character. If it's messy or unstructured, apply professional editing standards.
+EDITING APPROACH:
+1. Grammar & Spelling: Fix all errors, ensure proper punctuation, correct word usage
+2. Clarity & Flow: Improve sentence structure, eliminate ambiguity, enhance readability
+3. Organization: Add logical structure, improve paragraph flow, ensure coherent progression
+4. Style & Tone: Maintain the original voice while polishing it professionally
+5. Formatting: Ensure proper spacing, paragraph breaks, and visual hierarchy
+
+CRITICAL REQUIREMENTS:
+- Preserve the original meaning, intent, and voice completely
+- Do NOT make it sound AI-generated - keep it natural and human
+- If the text is already good, make subtle but meaningful improvements
+- If the text is messy, apply comprehensive professional editing
+- Enhance readability without changing the core message
+- Maintain appropriate tone (formal, casual, technical, etc.) based on context
 
 Return JSON with:
-- cleaned_text: The refined text (string)
-- improvements: Array of improvement types made (e.g., "grammar", "spelling", "structure", "clarity", "formatting") (array of strings)
+- cleaned_text: The fully refined, polished text (string) - should be publication-ready
+- improvements: Detailed array of improvement types made (array of strings) - be specific, e.g., ["grammar corrections", "sentence restructuring", "clarity enhancements", "paragraph reorganization", "punctuation fixes", "word choice improvements", "formatting standardization"]
 
-Maintain the original meaning and tone. Do not make it sound AI-generated. Always produce professional, polished output.
+QUALITY STANDARDS:
+- The cleaned text should read smoothly and professionally
+- All improvements should be meaningful and noticeable
+- The text should feel polished but natural
+- Maintain the author's original voice and style
 
 Text to refine: {input}`;
 
 async function purifyDocument(inputText) {
   const prompt = PURIFICATION_PROMPT.replace('{input}', inputText);
-  const systemPrompt = 'You are a professional editor and writing consultant. Always return valid JSON with "cleaned_text" and "improvements" array. Write naturally and professionally, never like AI. Maintain high editorial standards regardless of input quality.';
+  const systemPrompt = 'You are a senior editor with 20+ years of experience at major publishing houses and editorial firms. You specialize in transforming rough drafts into polished, publication-ready content while preserving the author\'s unique voice. Always return valid JSON with "cleaned_text" (publication-ready) and a detailed "improvements" array. Your editing must: (1) Fix all grammatical and spelling errors, (2) Enhance clarity and flow significantly, (3) Improve structure and organization, (4) Maintain the original tone and voice, (5) Never sound AI-generated - keep it natural and human. Apply the highest editorial standards. The cleaned text should be ready for professional publication while feeling authentic and natural.';
   
   try {
     const { parseJSONResponse } = require('../../utils/jsonParser');
