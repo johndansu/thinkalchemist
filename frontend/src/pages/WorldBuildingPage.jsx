@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaGlobe, FaUser, FaMap, FaBook, FaTheaterMasks, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaGlobe, FaUser, FaMap, FaBook, FaTheaterMasks, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function WorldBuildingPage({ isAuthenticated }) {
   const navigate = useNavigate();
@@ -56,9 +56,18 @@ function WorldBuildingPage({ isAuthenticated }) {
   const worldBuilding = output?.results?.worldBuilding;
 
   return (
-    <div className="creative-workspace-interface">
-      {/* Creative Notebook Input */}
-      <div className="notebook-container">
+    <>
+      {/* Back Button - Outside Container */}
+      <div className="process-back-button-container">
+        <button className="back-button-redesigned" onClick={() => navigate('/forge')}>
+          <FaArrowLeft className="back-icon" />
+          <span className="back-text">Back to Forge</span>
+        </button>
+      </div>
+
+      <div className="creative-workspace-interface">
+        {/* Creative Notebook Input */}
+        <div className="notebook-container">
         <div className="notebook-header">
           <div className="notebook-icon">
             <FaGlobe />
@@ -263,7 +272,8 @@ function WorldBuildingPage({ isAuthenticated }) {
           <p>Building your world...</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

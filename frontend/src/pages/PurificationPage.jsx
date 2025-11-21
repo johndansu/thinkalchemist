@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane } from 'react-icons/fa';
+import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function PurificationPage({ isAuthenticated }) {
   const navigate = useNavigate();
@@ -50,9 +50,18 @@ function PurificationPage({ isAuthenticated }) {
   const improvements = output?.results?.purification?.improvements || [];
 
   return (
-    <div className="document-editor-interface">
-      {/* Document Editor Input */}
-      <div className="editor-input-panel">
+    <>
+      {/* Back Button - Outside Container */}
+      <div className="process-back-button-container">
+        <button className="back-button-redesigned" onClick={() => navigate('/forge')}>
+          <FaArrowLeft className="back-icon" />
+          <span className="back-text">Back to Forge</span>
+        </button>
+      </div>
+
+      <div className="document-editor-interface">
+        {/* Document Editor Input */}
+        <div className="editor-input-panel">
         <div className="editor-header">
           <div className="editor-header-icon">
             <FaFileAlt />
@@ -229,7 +238,8 @@ function PurificationPage({ isAuthenticated }) {
           <p>Refining your document...</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

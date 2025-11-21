@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TimelineView from '../components/TimelineView';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function TimelinePage({ isAuthenticated }) {
   const navigate = useNavigate();
@@ -57,9 +57,18 @@ function TimelinePage({ isAuthenticated }) {
     : events;
 
   return (
-    <div className="timeline-visualization-interface">
-      {/* Timeline Input - Document Style */}
-      <div className="timeline-document-container">
+    <>
+      {/* Back Button - Outside Container */}
+      <div className="process-back-button-container">
+        <button className="back-button-redesigned" onClick={() => navigate('/forge')}>
+          <FaArrowLeft className="back-icon" />
+          <span className="back-text">Back to Forge</span>
+        </button>
+      </div>
+
+      <div className="timeline-visualization-interface">
+        {/* Timeline Input - Document Style */}
+        <div className="timeline-document-container">
         <div className="document-header">
           <div className="document-icon">
             <FaCalendarAlt />
@@ -188,7 +197,8 @@ function TimelinePage({ isAuthenticated }) {
           <p>Extracting and structuring timeline events...</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

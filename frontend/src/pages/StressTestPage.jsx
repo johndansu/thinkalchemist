@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function StressTestPage({ isAuthenticated }) {
   const navigate = useNavigate();
@@ -50,9 +50,18 @@ function StressTestPage({ isAuthenticated }) {
   const risks = stressTest?.hidden_risks || [];
 
   return (
-    <div className="business-analysis-interface">
-      {/* Business Analysis Form */}
-      <div className="analysis-form-container">
+    <>
+      {/* Back Button - Outside Container */}
+      <div className="process-back-button-container">
+        <button className="back-button-redesigned" onClick={() => navigate('/forge')}>
+          <FaArrowLeft className="back-icon" />
+          <span className="back-text">Back to Forge</span>
+        </button>
+      </div>
+
+      <div className="business-analysis-interface">
+        {/* Business Analysis Form */}
+        <div className="analysis-form-container">
         <div className="analysis-form-header">
           <div className="form-header-icon">
             <FaSearch />
@@ -239,7 +248,8 @@ function StressTestPage({ isAuthenticated }) {
           <p>Conducting comprehensive analysis...</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

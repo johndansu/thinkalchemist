@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PersonaCard from '../components/PersonaCard';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaUsers, FaFilter, FaTable, FaTh, FaChartBar, FaSave, FaDownload, FaFileAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaUsers, FaFilter, FaTable, FaTh, FaChartBar, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function PersonasPage({ isAuthenticated }) {
   const navigate = useNavigate();
@@ -50,9 +50,18 @@ function PersonasPage({ isAuthenticated }) {
   const personas = output?.results?.personas?.personas || [];
 
   return (
-    <div className="personas-research-interface">
-      {/* Research Form Interface - Not Chat */}
-      <div className="research-form-container">
+    <>
+      {/* Back Button - Outside Container */}
+      <div className="process-back-button-container">
+        <button className="back-button-redesigned" onClick={() => navigate('/forge')}>
+          <FaArrowLeft className="back-icon" />
+          <span className="back-text">Back to Forge</span>
+        </button>
+      </div>
+
+      <div className="personas-research-interface">
+        {/* Research Form Interface - Not Chat */}
+        <div className="research-form-container">
         <div className="research-form-header">
           <div className="form-header-icon">
             <FaUsers />
@@ -227,7 +236,8 @@ function PersonasPage({ isAuthenticated }) {
           <p>Analyzing your product concept and generating user personas...</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
