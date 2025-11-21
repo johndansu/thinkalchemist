@@ -161,7 +161,11 @@ function PersonasPage({ isAuthenticated }) {
             {viewMode === 'cards' && (
               <div className="personas-grid-view">
                 {personas.map((persona, idx) => (
-                  <PersonaCard key={idx} persona={persona} />
+                  <PersonaCard 
+                    key={idx} 
+                    persona={persona}
+                    style={{ animationDelay: `${idx * 0.1}s` }}
+                  />
                 ))}
               </div>
             )}

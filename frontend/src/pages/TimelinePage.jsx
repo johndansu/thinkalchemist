@@ -170,11 +170,13 @@ function TimelinePage({ isAuthenticated }) {
               <TimelineView events={filteredEvents} orientation={orientation} />
             </div>
           </div>
-
+          
           {output.results.timeline.summary && (
-            <div className="timeline-summary-box">
-              <h3>Summary</h3>
-              <p>{output.results.timeline.summary}</p>
+            <div className="timeline-summary-enhanced">
+              <div className="summary-header">
+                <h3>Timeline Summary</h3>
+              </div>
+              <p className="summary-text">{output.results.timeline.summary}</p>
             </div>
           )}
         </div>
