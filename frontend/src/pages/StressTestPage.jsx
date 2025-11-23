@@ -77,6 +77,14 @@ function StressTestPage() {
               className="analysis-textarea"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (inputText.trim() && !loading) {
+                    handleForge();
+                  }
+                }
+              }}
               placeholder="Describe your business idea, product concept, or strategic plan in detail..."
               rows={6}
             />

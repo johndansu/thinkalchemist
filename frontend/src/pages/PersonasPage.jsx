@@ -77,6 +77,14 @@ function PersonasPage() {
               className="research-textarea"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (inputText.trim() && !loading) {
+                    handleForge();
+                  }
+                }
+              }}
               placeholder="Enter your product idea, feature request, or business concept here..."
               rows={6}
             />

@@ -77,6 +77,14 @@ function PurificationPage() {
             className="document-editor-textarea"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (inputText.trim() && !loading) {
+                  handleForge();
+                }
+              }
+            }}
             placeholder="Paste your messy, unrefined, or poorly structured text here..."
             rows={10}
           />

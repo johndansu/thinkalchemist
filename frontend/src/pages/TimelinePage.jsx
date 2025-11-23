@@ -82,6 +82,14 @@ function TimelinePage() {
             className="timeline-editor-textarea"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (inputText.trim() && !loading) {
+                  handleForge();
+                }
+              }
+            }}
             placeholder="Enter your timeline content here. Include dates, events, or a narrative with sequential happenings..."
             rows={8}
           />

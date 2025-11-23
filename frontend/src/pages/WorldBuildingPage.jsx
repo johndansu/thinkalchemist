@@ -82,6 +82,14 @@ function WorldBuildingPage() {
               className="notebook-textarea"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (inputText.trim() && !loading) {
+                    handleForge();
+                  }
+                }
+              }}
               placeholder="Write your creative concept, fantasy/sci-fi idea, or story seed here..."
               rows={10}
             />
