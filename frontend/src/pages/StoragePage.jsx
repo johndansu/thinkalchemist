@@ -15,20 +15,46 @@ import {
   FaFilter,
   FaTimes,
   FaClock,
-  FaChevronRight
+  FaChevronRight,
+  FaLock,
+  FaSignInAlt
 } from 'react-icons/fa';
 
 function StoragePage() {
   const navigate = useNavigate();
   const [forges, setForges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedForge, setSelectedForge] = useState(null);
   const [filter, setFilter] = useState('all'); // all, personas, timeline, purification, stress_test, world_building
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    loadForges();
-  }, [navigate]);
+    // Check authentication status
+    const checkAuth = () => {
+      const token = localStorage.getItem('auth_token');
+      setIsAuthenticated(!!token);
+      
+      if (token) {
+        loadForges();
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('auth-changed', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('auth-changed', handleAuthChange);
+    };
+  }, []);
 
   const loadForges = async () => {
     setLoading(true);
@@ -37,6 +63,12 @@ function StoragePage() {
       setForges(response.forges || []);
     } catch (error) {
       console.error('Failed to load forges:', error);
+      // If error is due to authentication, update auth state
+      if (error.message?.includes('Unauthorized') || error.message?.includes('token')) {
+        setIsAuthenticated(false);
+        localStorage.removeItem('auth_token');
+        window.dispatchEvent(new Event('auth-changed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -129,12 +161,44 @@ function StoragePage() {
     ).join(' ');
   };
 
+  // Show loading state
   if (loading) {
     return (
       <div className="storage-page-wrapper">
         <div className="storage-loading-state">
           <div className="loading-spinner-large"></div>
           <p>Loading your transformations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <div className="storage-page-wrapper">
+        <div className="storage-auth-required">
+          <div className="auth-required-content">
+            <div className="auth-required-icon">
+              <FaLock />
+            </div>
+            <h2 className="auth-required-title">Authentication Required</h2>
+            <p className="auth-required-message">
+              Please sign in to access your saved transformations and manage your forge library.
+            </p>
+            <div className="auth-required-actions">
+              <Link to="/signin" className="auth-required-button primary">
+                <FaSignInAlt />
+                <span>Sign In</span>
+              </Link>
+              <Link to="/signup" className="auth-required-button secondary">
+                <span>Create Account</span>
+              </Link>
+            </div>
+            <p className="auth-required-hint">
+              Don't have an account? Sign up to start saving your transformations.
+            </p>
+          </div>
         </div>
       </div>
     );

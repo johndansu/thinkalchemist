@@ -1791,6 +1791,109 @@ a.auth-switch-button {
   opacity: 0.7;
 }
 
+/* Authentication Required State */
+.storage-auth-required {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 3rem 2rem;
+}
+
+.auth-required-content {
+  text-align: center;
+  max-width: 500px;
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--warm-off-white);
+}
+
+.auth-required-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--deep-sand) 0%, var(--soft-gold) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(193, 164, 106, 0.3);
+}
+
+.auth-required-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 1rem;
+}
+
+.auth-required-message {
+  color: var(--burnt-umber);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.auth-required-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.auth-required-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.auth-required-button.primary {
+  background: var(--deep-sand);
+  color: white;
+  border-color: var(--deep-sand);
+  box-shadow: 0 2px 8px rgba(42, 42, 42, 0.1);
+}
+
+.auth-required-button.primary:hover {
+  background: var(--soft-gold);
+  border-color: var(--soft-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(42, 42, 42, 0.15);
+}
+
+.auth-required-button.secondary {
+  background: transparent;
+  color: var(--charcoal);
+  border-color: var(--charcoal);
+}
+
+.auth-required-button.secondary:hover {
+  background: var(--charcoal);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.auth-required-hint {
+  color: var(--burnt-umber);
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
 /* Hero Header */
 .storage-hero {
   background: linear-gradient(135deg, var(--soft-gold) 0%, var(--deep-sand) 100%);
