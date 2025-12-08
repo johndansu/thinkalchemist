@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
-import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExclamationCircle, FaAt } from 'react-icons/fa';
 
 function SignUpPage() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +19,7 @@ function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await authAPI.signup(email, password, name);
+      const response = await authAPI.signup(email, password, name, username);
       
       // Check if we have a session token (signup might require email confirmation)
       if (response.session?.access_token) {
@@ -37,6 +38,7 @@ function SignUpPage() {
         return;
       }
       
+      setUsername('');
       setName('');
       setEmail('');
       setPassword('');
@@ -103,6 +105,28 @@ function SignUpPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-redesigned">
+            <div className="auth-input-group">
+              <label htmlFor="username" className="auth-input-label">
+                <FaAt className="auth-input-icon" />
+                Username
+                <span className="auth-password-hint"> (3-20 characters)</span>
+              </label>
+              <input
+                id="username"
+                type="text"
+                placeholder="johndoe"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+                className="auth-input-field"
+                pattern="[a-zA-Z0-9_]{3,20}"
+                title="Username must be 3-20 characters, letters, numbers, and underscores only"
+                minLength={3}
+                maxLength={20}
+              />
+            </div>
+
             <div className="auth-input-group">
               <label htmlFor="name" className="auth-input-label">
                 <FaUser className="auth-input-icon" />
