@@ -1,24 +1,27 @@
-# Ignore all markdown files except README.md
-*.md
-!README.md
-!**/README.md
-
 # Dependencies
 node_modules/
-package-lock.json
+# Note: package-lock.json should be committed for reproducible builds
 
 # Build outputs
 dist/
 build/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
 # IDE
 .vscode/
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
@@ -27,4 +30,21 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Coverage and testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Optional: Ignore documentation files except README
+# Uncomment if you want to ignore most markdown files
+# *.md
+# !README.md
+# !**/README.md
 
