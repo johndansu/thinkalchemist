@@ -10,7 +10,8 @@ import TimelinePage from './pages/TimelinePage';
 import PurificationPage from './pages/PurificationPage';
 import StressTestPage from './pages/StressTestPage';
 import WorldBuildingPage from './pages/WorldBuildingPage';
-import AuthPage from './pages/AuthPage';
+import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
 import './styles/main.css';
 
 function AppContent() {
@@ -57,8 +58,17 @@ function AppContent() {
             element={<StoragePage />} 
           />
           <Route 
+            path="/signin" 
+            element={<SignInPage />} 
+          />
+          <Route 
+            path="/signup" 
+            element={<SignUpPage />} 
+          />
+          {/* Redirect old /auth to /signin for backwards compatibility */}
+          <Route 
             path="/auth" 
-            element={<AuthPage />} 
+            element={<SignInPage />} 
           />
         </Routes>
       </main>

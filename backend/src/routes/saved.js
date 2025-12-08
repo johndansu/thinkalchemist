@@ -39,7 +39,23 @@ router.post('/save', verifyAuth, async (req, res) => {
 
     if (error) {
       console.error('Save error:', error);
-      return res.status(400).json({ error: error.message });
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      // Provide more helpful error messages
+      if (error.code === '23505') { // Unique constraint violation
+        return res.status(400).json({ error: 'A forge with this title already exists' });
+      } else if (error.code === '42P01') { // Table doesn't exist
+        return res.status(503).json({ error: 'Database table not found. Please run the database migration.' });
+      } else if (error.code === '23503') { // Foreign key violation
+        return res.status(400).json({ error: 'Invalid user reference' });
+      }
+      
+      return res.status(400).json({ error: error.message || 'Failed to save forge' });
     }
 
     res.json({ success: true, forge: data });
@@ -64,7 +80,18 @@ router.get('/list', verifyAuth, async (req, res) => {
 
     if (error) {
       console.error('List error:', error);
-      return res.status(400).json({ error: error.message });
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      if (error.code === '42P01') { // Table doesn't exist
+        return res.status(503).json({ error: 'Database table not found. Please run the database migration.' });
+      }
+      
+      return res.status(400).json({ error: error.message || 'Failed to list forges' });
     }
 
     res.json({ success: true, forges: data || [] });

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
-import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { FaFlask, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
-function AuthPage({ onAuthSuccess }) {
+function SignInPage() {
   const navigate = useNavigate();
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,64 +17,29 @@ function AuthPage({ onAuthSuccess }) {
     setLoading(true);
 
     try {
-      let response;
-      if (isSignUp) {
-        response = await authAPI.signup(email, password, name);
-      } else {
-        response = await authAPI.signin(email, password);
-      }
+      const response = await authAPI.signin(email, password);
       
-      // Check if we have a session token (signup might require email confirmation)
       if (response.session?.access_token) {
         // Token is already set by the API function
-        // Trigger event multiple times to ensure navigation catches it
         window.dispatchEvent(new Event('auth-changed'));
         
-        // Small delay to ensure navigation updates before navigating
         setTimeout(() => {
-          // Trigger again just before navigation
           window.dispatchEvent(new Event('auth-changed'));
-          if (onAuthSuccess) {
-            onAuthSuccess();
-          }
           navigate('/');
         }, 150);
-      } else if (isSignUp) {
-        // Signup successful but email confirmation required
-        setError('Account created! Please check your email to confirm your account before signing in.');
-        setIsSignUp(false); // Switch to sign in mode
-        setEmail('');
-        setPassword('');
-        setName('');
-        return;
       } else {
-        // Sign in should always have a token, but just in case
         window.dispatchEvent(new Event('auth-changed'));
-        if (onAuthSuccess) {
-          onAuthSuccess();
-        }
         navigate('/');
       }
       
-      // Reset form
-      setName('');
       setEmail('');
       setPassword('');
     } catch (err) {
-      const errorMessage = err.message || err.response?.data?.error || 'Authentication failed';
+      const errorMessage = err.message || err.response?.data?.error || 'Sign in failed';
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
-
-  const switchMode = () => {
-    setIsSignUp(!isSignUp);
-    setName('');
-    setEmail('');
-    setPassword('');
-    setError('');
-    setShowPassword(false);
   };
 
   return (
@@ -88,23 +51,23 @@ function AuthPage({ onAuthSuccess }) {
             <div className="auth-logo-icon">
               <FaFlask />
             </div>
-            <h1 className="auth-panel-title">Think Alchemist</h1>
+            <h1 className="auth-panel-title">Welcome Back</h1>
             <p className="auth-panel-subtitle">
-              Transform your thoughts into structured knowledge
+              Sign in to access your saved transformations and continue your alchemical journey
             </p>
           </div>
           <div className="auth-panel-features">
             <div className="auth-feature-item">
               <FaCheckCircle className="auth-feature-icon" />
-              <span>Save your transformations</span>
+              <span>Access your saved forges</span>
             </div>
             <div className="auth-feature-item">
               <FaCheckCircle className="auth-feature-icon" />
-              <span>Access your library anywhere</span>
+              <span>Continue where you left off</span>
             </div>
             <div className="auth-feature-item">
               <FaCheckCircle className="auth-feature-icon" />
-              <span>Secure and private</span>
+              <span>Sync across all devices</span>
             </div>
           </div>
         </div>
@@ -126,37 +89,14 @@ function AuthPage({ onAuthSuccess }) {
 
           {/* Header */}
           <div className="auth-form-header">
-            <h2 className="auth-form-title">
-              {isSignUp ? 'Create Your Account' : 'Welcome Back'}
-            </h2>
+            <h2 className="auth-form-title">Sign In</h2>
             <p className="auth-form-subtitle">
-              {isSignUp 
-                ? 'Start saving and organizing your transformations' 
-                : 'Sign in to access your saved forges'}
+              Enter your credentials to access your account
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-redesigned">
-            {isSignUp && (
-              <div className="auth-input-group">
-                <label htmlFor="name" className="auth-input-label">
-                  <FaUser className="auth-input-icon" />
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  autoComplete="name"
-                  className="auth-input-field"
-                />
-              </div>
-            )}
-            
             <div className="auth-input-group">
               <label htmlFor="email" className="auth-input-label">
                 <FaEnvelope className="auth-input-icon" />
@@ -178,18 +118,16 @@ function AuthPage({ onAuthSuccess }) {
               <label htmlFor="password" className="auth-input-label">
                 <FaLock className="auth-input-icon" />
                 Password
-                {isSignUp && <span className="auth-password-hint"> (min. 6 characters)</span>}
               </label>
               <div className="auth-password-wrapper">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={isSignUp ? 6 : undefined}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
+                  autoComplete="current-password"
                   className="auth-input-field"
                 />
                 <button
@@ -218,42 +156,31 @@ function AuthPage({ onAuthSuccess }) {
               {loading ? (
                 <>
                   <span className="auth-loading-spinner"></span>
-                  <span>Processing...</span>
+                  <span>Signing In...</span>
                 </>
               ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
+                'Sign In'
               )}
             </button>
           </form>
 
-          {/* Switch Mode */}
+          {/* Switch to Sign Up */}
           <div className="auth-switch-mode">
             <span className="auth-switch-text">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              Don't have an account?
             </span>
-            <button 
-              type="button"
-              onClick={switchMode}
+            <Link 
+              to="/signup"
               className="auth-switch-button"
             >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
+              Sign Up
+            </Link>
           </div>
-
-          {/* Footer Info */}
-          {isSignUp && (
-            <div className="auth-footer-info">
-              <p>
-                By creating an account, you agree to our terms of service and privacy policy.
-                Your data is encrypted and secure.
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default AuthPage;
+export default SignInPage;
 

@@ -67,6 +67,12 @@ export const authAPI = {
   signup: async (email, password, name) => {
     try {
       const response = await api.post('/auth/signup', { email, password, name });
+      // Set auth token if session is returned (some providers require email confirmation)
+      if (response.data.session?.access_token) {
+        localStorage.setItem('auth_token', response.data.session.access_token);
+        // Trigger event to update navigation
+        window.dispatchEvent(new Event('auth-changed'));
+      }
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to sign up';
@@ -78,6 +84,8 @@ export const authAPI = {
       const response = await api.post('/auth/signin', { email, password });
       if (response.data.session?.access_token) {
         localStorage.setItem('auth_token', response.data.session.access_token);
+        // Trigger event to update navigation
+        window.dispatchEvent(new Event('auth-changed'));
       }
       return response.data;
     } catch (error) {
@@ -92,6 +100,8 @@ export const authAPI = {
       console.error('Signout error:', error);
     } finally {
       localStorage.removeItem('auth_token');
+      // Trigger event to update navigation
+      window.dispatchEvent(new Event('auth-changed'));
     }
   },
 };

@@ -31,13 +31,34 @@ function PurificationPage() {
   const handleSave = async () => {
     if (!output) return;
 
+    // Check if user is authenticated
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      const shouldSignIn = window.confirm('You need to sign in to save your work. Would you like to sign in now?');
+      if (shouldSignIn) {
+        navigate('/auth');
+      }
+      return;
+    }
+
     try {
       const title = inputText.substring(0, 50) + (inputText.length > 50 ? '...' : '');
       await savedAPI.save(title, inputText, output, 'purification');
-      alert('Saved to your library.');
+      alert('✅ Saved to your library!');
     } catch (error) {
       console.error('Save error:', error);
-      alert('Failed to save. Please try again.');
+      const errorMessage = error.message || 'Failed to save';
+      
+      // Provide specific error messages
+      if (errorMessage.includes('Unauthorized') || errorMessage.includes('token')) {
+        alert('❌ Your session has expired. Please sign in again.');
+        localStorage.removeItem('auth_token');
+        navigate('/auth');
+      } else if (errorMessage.includes('Database not configured')) {
+        alert('❌ Storage is not configured. Please contact support.');
+      } else {
+        alert(`❌ Failed to save: ${errorMessage}`);
+      }
     }
   };
 
