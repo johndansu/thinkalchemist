@@ -24,7 +24,20 @@ function TimelinePage() {
       setOutput(result);
     } catch (error) {
       console.error('Forge error:', error);
-      alert('Failed to forge timeline. Please try again.');
+      const errorMessage = error.message || 'Failed to forge timeline';
+      
+      // Show more helpful error messages
+      if (errorMessage.includes('Cannot connect to Ollama') || errorMessage.includes('Ollama is running')) {
+        alert(`⚠️ ${errorMessage}\n\nMake sure Ollama is running on your computer.`);
+      } else if (errorMessage.includes('not found') && errorMessage.includes('ollama pull')) {
+        alert(`⚠️ ${errorMessage}\n\nInstall the model using the command shown above.`);
+      } else if (errorMessage.includes('API key') || errorMessage.includes('not configured')) {
+        alert('⚠️ LLM API key is not configured. Please add GROQ_API_KEY to backend/.env file.\n\nGet a free API key at: https://console.groq.com');
+      } else if (errorMessage.includes('Invalid') && errorMessage.includes('key')) {
+        alert('⚠️ Invalid LLM API key. Please check your GROQ_API_KEY in backend/.env file.');
+      } else {
+        alert(`Failed to forge timeline: ${errorMessage}\n\nPlease try again or check the backend logs for more details.`);
+      }
     } finally {
       setLoading(false);
     }

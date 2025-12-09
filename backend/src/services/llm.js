@@ -20,8 +20,8 @@ try {
  * Default: Groq (fast, free tier available)
  */
 
-const LLM_PROVIDER = process.env.LLM_PROVIDER || 'groq'; // groq, together, ollama, replicate
-const LLM_MODEL = process.env.LLM_MODEL || 'llama-3.1-70b-versatile'; // Default Groq model
+const LLM_PROVIDER = process.env.LLM_PROVIDER || 'ollama'; // groq, together, ollama, replicate
+const LLM_MODEL = process.env.LLM_MODEL || 'llama3.2:1b'; // Using 1B model for better quality while still fast
 
 /**
  * Call LLM API with a prompt
@@ -51,9 +51,15 @@ async function callLLM(prompt, systemPrompt = '', temperature = 0.7, jsonMode = 
  */
 async function callGroq(prompt, systemPrompt, temperature, jsonMode) {
   try {
+    const apiKey = process.env.GROQ_API_KEY || process.env.LLM_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('Groq API key is not configured. Please set GROQ_API_KEY or LLM_API_KEY in your .env file.');
+    }
+
     const Groq = require('groq-sdk');
     const groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY || process.env.LLM_API_KEY,
+      apiKey: apiKey,
     });
 
     const messages = [];
@@ -74,6 +80,16 @@ async function callGroq(prompt, systemPrompt, temperature, jsonMode) {
     return response.choices[0].message.content;
   } catch (error) {
     console.error('Groq API Error:', error);
+    
+    // Provide more helpful error messages
+    if (error.message.includes('API key') || error.message.includes('not configured')) {
+      throw new Error('LLM API key is not configured. Please add GROQ_API_KEY or LLM_API_KEY to backend/.env file. Get a free key at https://console.groq.com');
+    }
+    
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      throw new Error('Invalid LLM API key. Please check your GROQ_API_KEY or LLM_API_KEY in backend/.env file.');
+    }
+    
     throw new Error(`Groq API error: ${error.message}`);
   }
 }
@@ -125,8 +141,7 @@ async function callTogether(prompt, systemPrompt, temperature, jsonMode) {
  */
 async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
   try {
-    
-    const model = process.env.LLM_MODEL || 'llama3.2';
+    const model = process.env.LLM_MODEL || 'llama3.2:1b'; // 1B model for better quality
     const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
     
     // Build messages array for chat API
@@ -138,49 +153,78 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
     // Add JSON format instruction to user prompt if needed
     let userPrompt = prompt;
     if (jsonMode) {
-      userPrompt = `${prompt}\n\nIMPORTANT: Return ONLY valid JSON. No markdown, no code blocks, no explanations. Just the raw JSON object.`;
+      userPrompt = `${prompt}\n\nReturn ONLY valid JSON. No markdown, no code blocks.`;
     }
     messages.push({ role: 'user', content: userPrompt });
 
-    // Use chat API for better prompt handling
-    const response = await fetch(`${ollamaUrl}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    console.log(`Calling Ollama at ${ollamaUrl} with model: ${model}`);
+
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+
+    try {
+      // Simplified Ollama call - minimal options for speed
+      const requestBody = {
         model,
         messages,
         stream: false,
-        options: {
-          temperature,
+      };
+      
+      // Only add options if temperature is provided
+      if (temperature !== undefined) {
+        requestBody.options = {
+          temperature: temperature,
+        };
+      }
+
+      const response = await fetch(`${ollamaUrl}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Ollama API Error Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-        url: ollamaUrl,
-        model: model
+        signal: controller.signal,
+        body: JSON.stringify(requestBody),
       });
-      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
-    }
 
-    const data = await response.json();
-    
-    if (!data.message || !data.message.content) {
-      console.error('Ollama Response Structure:', JSON.stringify(data, null, 2));
-      throw new Error('Invalid response structure from Ollama');
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Ollama API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          url: ollamaUrl,
+          model: model
+        });
+        
+        if (response.status === 404) {
+          throw new Error(`Model "${model}" not found. Pull it with: ollama pull ${model}`);
+        }
+        
+        throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      // Chat API returns message.content
+      if (!data.message || !data.message.content) {
+        console.error('Ollama Response Structure:', JSON.stringify(data, null, 2));
+        throw new Error('Invalid response structure from Ollama');
+      }
+      
+      return data.message.content;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Request timed out after 45 seconds. Ollama may be slow or overloaded. Try restarting Ollama or using a smaller model.');
+      }
+      throw fetchError;
     }
-    
-    return data.message.content;
   } catch (error) {
     const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
-    const model = process.env.LLM_MODEL || 'llama3.2';
+    const model = process.env.LLM_MODEL || 'llama3.2:1b'; // 1B model for better quality
     
     console.error('Ollama API Error:', {
       message: error.message,
@@ -189,9 +233,13 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
       model: model
     });
     
-    // Provide helpful error message if connection fails
-    if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED') || error.message.includes('timeout')) {
+    // Provide helpful error messages
+    if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED') || error.message.includes('timeout') || error.message.includes('Failed to fetch')) {
       throw new Error(`Cannot connect to Ollama at ${ollamaUrl}. Make sure Ollama is running. Start it with: ollama serve`);
+    }
+    
+    if (error.message.includes('not found')) {
+      throw new Error(`Model "${model}" not found. Install it with: ollama pull ${model}`);
     }
     
     throw new Error(`Ollama API error: ${error.message}`);

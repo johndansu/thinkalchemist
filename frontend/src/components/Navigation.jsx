@@ -8,19 +8,61 @@ function Navigation() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
-    // Check authentication status
-    const checkAuth = () => {
+    // Check authentication status and fetch user info
+    const checkAuth = async () => {
       const token = localStorage.getItem('auth_token');
+      const nowAuthenticated = !!token;
+      
       // Use functional update to always get latest state
       setIsAuthenticated(prev => {
-        const nowAuthenticated = !!token;
         if (prev !== nowAuthenticated) {
           console.log('Auth state changed:', nowAuthenticated ? 'authenticated' : 'not authenticated');
         }
         return nowAuthenticated;
       });
+
+      // If authenticated, fetch user info
+      if (nowAuthenticated && token) {
+        try {
+          const userData = await authAPI.getCurrentUser();
+          if (userData?.user) {
+            const user = userData.user;
+            setUserEmail(user.email || '');
+            // Get ONLY username from user_metadata.username (no fallback to email or name)
+            // Only set username if it exists in user_metadata
+            console.log('User data:', {
+              email: user.email,
+              user_metadata: user.user_metadata,
+              username: user.user_metadata?.username,
+              full_user_metadata: JSON.stringify(user.user_metadata, null, 2),
+              raw_user: user
+            });
+            if (user.user_metadata?.username) {
+              setUsername(user.user_metadata.username);
+              console.log('Username set to:', user.user_metadata.username);
+            } else {
+              console.log('No username found in user_metadata');
+              setUsername(null);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch user info:', error);
+          // If token is invalid, clear auth state
+          if (error.response?.status === 401) {
+            localStorage.removeItem('auth_token');
+            setIsAuthenticated(false);
+            setUsername('');
+            setUserEmail('');
+          }
+        }
+      } else {
+        // Clear user info when not authenticated
+        setUsername('');
+        setUserEmail('');
+      }
     };
 
     // Initial check
@@ -44,7 +86,7 @@ function Navigation() {
     window.addEventListener('auth-changed', handleAuthChange);
     
     // Also check periodically in case token is removed in same tab
-    const interval = setInterval(checkAuth, 2000);
+    const interval = setInterval(checkAuth, 5000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -58,6 +100,7 @@ function Navigation() {
       await authAPI.signout();
       setIsAuthenticated(false);
       setUserEmail('');
+      setUsername('');
       // Trigger event to update other components
       window.dispatchEvent(new Event('auth-changed'));
       // Redirect to home after sign out
@@ -69,6 +112,7 @@ function Navigation() {
       // Even if API call fails, clear local state
       setIsAuthenticated(false);
       setUserEmail('');
+      setUsername('');
       localStorage.removeItem('auth_token');
       window.dispatchEvent(new Event('auth-changed'));
     }
@@ -109,17 +153,23 @@ function Navigation() {
 
           {isAuthenticated ? (
             <div className="nav-auth-section">
-              <span className="nav-user-info">
-                <FaUser className="nav-user-icon" />
-                <span className="nav-user-text">Signed In</span>
-              </span>
+              {username && (
+                <div className="nav-user-info">
+                  <FaUser className="nav-user-icon" />
+                  <div className="nav-user-details">
+                    <span className="nav-username" title={userEmail}>
+                      {username}
+                    </span>
+                  </div>
+                </div>
+              )}
               <button 
                 onClick={handleSignOut}
                 className="nav-signout-btn"
                 title="Sign Out"
               >
-                <FaSignOutAlt />
-                <span>Sign Out</span>
+                <FaSignOutAlt className="nav-signout-icon" />
+                <span className="nav-signout-text">Sign Out</span>
               </button>
             </div>
           ) : (

@@ -6,7 +6,7 @@ import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExcl
 function AuthPage({ onAuthSuccess }) {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ function AuthPage({ onAuthSuccess }) {
     try {
       let response;
       if (isSignUp) {
-        response = await authAPI.signup(email, password, name);
+        response = await authAPI.signup(email, password, username);
       } else {
         response = await authAPI.signin(email, password);
       }
@@ -47,7 +47,7 @@ function AuthPage({ onAuthSuccess }) {
         setIsSignUp(false); // Switch to sign in mode
         setEmail('');
         setPassword('');
-        setName('');
+        setUsername('');
         return;
       } else {
         // Sign in should always have a token, but just in case
@@ -140,18 +140,18 @@ function AuthPage({ onAuthSuccess }) {
           <form onSubmit={handleSubmit} className="auth-form-redesigned">
             {isSignUp && (
               <div className="auth-input-group">
-                <label htmlFor="name" className="auth-input-label">
+                <label htmlFor="username" className="auth-input-label">
                   <FaUser className="auth-input-icon" />
-                  Full Name
+                  Username
                 </label>
                 <input
-                  id="name"
+                  id="username"
                   type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
-                  autoComplete="name"
+                  autoComplete="username"
                   className="auth-input-field"
                 />
               </div>

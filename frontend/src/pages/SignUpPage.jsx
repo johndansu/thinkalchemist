@@ -6,7 +6,6 @@ import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExcl
 function SignUpPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +18,7 @@ function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await authAPI.signup(email, password, name, username);
+      const response = await authAPI.signup(email, password, username);
       
       // Check if we have a session token (signup might require email confirmation)
       if (response.session?.access_token) {
@@ -109,19 +108,23 @@ function SignUpPage() {
               <label htmlFor="username" className="auth-input-label">
                 <FaAt className="auth-input-icon" />
                 Username
-                <span className="auth-password-hint"> (3-20 characters)</span>
+                <span className="auth-password-hint"> (letters, numbers, underscores)</span>
               </label>
               <input
                 id="username"
                 type="text"
-                placeholder="johndoe"
+                placeholder="johndoe123"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  // Allow any input, validation happens on submit
+                  const value = e.target.value;
+                  setUsername(value);
+                }}
                 required
                 autoComplete="username"
                 className="auth-input-field"
-                pattern="[a-zA-Z0-9_]{3,20}"
-                title="Username must be 3-20 characters, letters, numbers, and underscores only"
+                pattern="^[a-zA-Z0-9_]{3,20}$"
+                title="Username can mix letters, numbers, and underscores. Examples: john123, user_1, abc123def, 123abc"
                 minLength={3}
                 maxLength={20}
               />

@@ -64,9 +64,9 @@ export const forgeAPI = {
 };
 
 export const authAPI = {
-  signup: async (email, password, name, username) => {
+  signup: async (email, password, username) => {
     try {
-      const response = await api.post('/auth/signup', { email, password, name, username });
+      const response = await api.post('/auth/signup', { email, password, username });
       // Set auth token if session is returned (some providers require email confirmation)
       if (response.data.session?.access_token) {
         localStorage.setItem('auth_token', response.data.session.access_token);
@@ -102,6 +102,24 @@ export const authAPI = {
       localStorage.removeItem('auth_token');
       // Trigger event to update navigation
       window.dispatchEvent(new Event('auth-changed'));
+    }
+  },
+  resendConfirmation: async (email) => {
+    try {
+      const response = await api.post('/auth/resend-confirmation', { email });
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to resend confirmation email';
+      throw new Error(errorMessage);
+    }
+  },
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to get user';
+      throw new Error(errorMessage);
     }
   },
 };

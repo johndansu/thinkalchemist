@@ -10,10 +10,19 @@ function SignInPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  
+  // Check if error is about email confirmation
+  const needsEmailConfirmation = error && (
+    error.toLowerCase().includes('email') && 
+    (error.toLowerCase().includes('confirm') || error.toLowerCase().includes('verify') || error.toLowerCase().includes('not confirmed'))
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResendSuccess(false);
     setLoading(true);
 
     try {
@@ -39,6 +48,28 @@ function SignInPage() {
       setError(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setResendLoading(true);
+    setResendSuccess(false);
+    setError('');
+
+    try {
+      await authAPI.resendConfirmation(email);
+      setResendSuccess(true);
+      setTimeout(() => setResendSuccess(false), 5000);
+    } catch (err) {
+      const errorMessage = err.message || err.response?.data?.error || 'Failed to resend confirmation email';
+      setError(errorMessage);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -145,6 +176,28 @@ function SignInPage() {
               <div className="auth-error-message">
                 <FaExclamationCircle className="auth-error-icon" />
                 <span>{error}</span>
+                {needsEmailConfirmation && (
+                  <button
+                    type="button"
+                    onClick={handleResendConfirmation}
+                    disabled={resendLoading || resendSuccess}
+                    className="auth-resend-button"
+                    style={{
+                      marginTop: '10px',
+                      padding: '8px 16px',
+                      background: 'var(--burnt-umber)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: resendLoading || resendSuccess ? 'not-allowed' : 'pointer',
+                      opacity: resendLoading || resendSuccess ? 0.7 : 1,
+                      fontSize: '14px',
+                      width: '100%'
+                    }}
+                  >
+                    {resendLoading ? 'Sending...' : resendSuccess ? '✓ Email sent!' : 'Resend Confirmation Email'}
+                  </button>
+                )}
               </div>
             )}
 
