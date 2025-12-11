@@ -114,12 +114,9 @@ router.post('/transform', async (req, res) => {
     const errorDetails = {
       message: error.message,
       ...(error.cause && { cause: error.cause }),
-      ...(process.env.NODE_ENV === 'development' && { 
-        stack: error.stack,
-        name: error.name
-      })
     };
     
+    // Always include details in response for debugging
     res.status(500).json({ 
       error: 'Failed to transform input', 
       details: error.message,

@@ -38,7 +38,6 @@ function SignUpPage() {
       }
       
       setUsername('');
-      setName('');
       setEmail('');
       setPassword('');
     } catch (err) {

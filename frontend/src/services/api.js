@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 60000, // 60 second timeout for forge requests
 });
 
 // Log API configuration on startup
@@ -57,8 +58,10 @@ export const forgeAPI = {
       const response = await api.post('/forge/transform', payload);
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to connect to backend';
-      throw new Error(errorMessage);
+      // Get detailed error message from response
+      const errorDetails = error.response?.data?.details || error.response?.data?.error || error.message || 'Failed to connect to backend';
+      const fullError = error.response?.data?.message ? `${error.response.data.message}: ${errorDetails}` : errorDetails;
+      throw new Error(fullError);
     }
   },
 };
@@ -119,6 +122,15 @@ export const authAPI = {
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to get user';
+      throw new Error(errorMessage);
+    }
+  },
+  updateUsername: async (username) => {
+    try {
+      const response = await api.post('/auth/update-username', { username });
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to update username';
       throw new Error(errorMessage);
     }
   },

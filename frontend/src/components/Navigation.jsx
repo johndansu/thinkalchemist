@@ -32,35 +32,26 @@ function Navigation() {
             const user = userData.user;
             setUserEmail(user.email || '');
             // Get ONLY username from user_metadata.username (no fallback to email or name)
-            // Only set username if it exists in user_metadata
-            console.log('User data:', {
-              email: user.email,
-              user_metadata: user.user_metadata,
-              username: user.user_metadata?.username,
-              full_user_metadata: JSON.stringify(user.user_metadata, null, 2),
-              raw_user: user
-            });
             if (user.user_metadata?.username) {
               setUsername(user.user_metadata.username);
-              console.log('Username set to:', user.user_metadata.username);
             } else {
-              console.log('No username found in user_metadata');
               setUsername(null);
             }
           }
         } catch (error) {
-          console.error('Failed to fetch user info:', error);
-          // If token is invalid, clear auth state
-          if (error.response?.status === 401) {
+          // If token is invalid, clear auth state immediately and stop retrying
+          if (error.response?.status === 401 || error.message?.includes('Invalid token') || error.message?.includes('Unauthorized')) {
             localStorage.removeItem('auth_token');
             setIsAuthenticated(false);
-            setUsername('');
+            setUsername(null);
             setUserEmail('');
+            return; // Exit early to prevent further processing
           }
+          console.error('Failed to fetch user info:', error);
         }
       } else {
         // Clear user info when not authenticated
-        setUsername('');
+        setUsername(null);
         setUserEmail('');
       }
     };
@@ -86,7 +77,14 @@ function Navigation() {
     window.addEventListener('auth-changed', handleAuthChange);
     
     // Also check periodically in case token is removed in same tab
-    const interval = setInterval(checkAuth, 5000);
+    // Only check if there's a token to avoid unnecessary API calls
+    // Increased interval to reduce API calls - only check every 30 seconds
+    const interval = setInterval(() => {
+      const currentToken = localStorage.getItem('auth_token');
+      if (currentToken) {
+        checkAuth();
+      }
+    }, 30000); // 30 seconds - much less frequent
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);

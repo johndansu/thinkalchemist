@@ -70,13 +70,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    // Log signup data for debugging
-    console.log('Signup successful:', {
-      user_id: data.user?.id,
-      email: data.user?.email,
-      user_metadata: data.user?.user_metadata,
-      username: data.user?.user_metadata?.username
-    });
+    // Signup successful - no logging needed
 
     // Store username in usernames table for uniqueness
     if (data.user) {
@@ -311,13 +305,7 @@ router.get('/me', async (req, res) => {
       }
     }
 
-    // Log user metadata for debugging
-    console.log('User metadata:', {
-      user_id: user.id,
-      email: user.email,
-      user_metadata: user.user_metadata,
-      username: user.user_metadata?.username
-    });
+    // User data retrieved - no logging needed
 
     res.json({ user });
   } catch (error) {
