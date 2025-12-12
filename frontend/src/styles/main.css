@@ -3931,6 +3931,68 @@ a.auth-switch-button {
   border-color: var(--deep-sand);
 }
 
+/* Export Dropdown */
+.export-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.export-dropdown .dropdown-arrow {
+  font-size: 0.7rem;
+  margin-left: 0.3rem;
+  transition: transform 0.3s;
+}
+
+.export-dropdown:hover .dropdown-arrow,
+.export-dropdown .export-menu.show ~ .canvas-btn .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid var(--charcoal);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 150px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.export-menu.show {
+  display: flex;
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: white;
+  color: var(--charcoal);
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.export-option:hover {
+  background: var(--warm-off-white);
+  color: var(--deep-sand);
+}
+
+.export-option:not(:last-child) {
+  border-bottom: 1px solid var(--warm-off-white);
+}
+
 .timeline-viewport {
   padding: 2rem;
   overflow: auto;

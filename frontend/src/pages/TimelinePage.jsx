@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TimelineView from '../components/TimelineView';
 import { forgeAPI, savedAPI } from '../services/api';
-import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
+import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft, FaFileWord, FaFilePdf } from 'react-icons/fa';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 function TimelinePage() {
   const navigate = useNavigate();
@@ -12,6 +15,17 @@ function TimelinePage() {
   const [zoom, setZoom] = useState(1);
   const [orientation, setOrientation] = useState('vertical');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.export-dropdown')) {
+        document.querySelectorAll('.export-menu').forEach(menu => menu.classList.remove('show'));
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleForge = async () => {
     if (!inputText.trim()) return;
@@ -77,21 +91,206 @@ function TimelinePage() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = (format = 'json') => {
     if (!output || !output.results || !output.results.timeline) {
       alert('❌ No timeline data to export');
       return;
     }
 
-    const dataStr = JSON.stringify(output.results.timeline, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
     const title = inputText.substring(0, 30).replace(/[^a-z0-9]/gi, '_') || 'timeline';
-    link.download = `${title}_timeline.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const timeline = output.results.timeline;
+
+    if (format === 'json') {
+      const dataStr = JSON.stringify(timeline, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}_timeline.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'word') {
+      handleExportWord(timeline, title);
+    } else if (format === 'pdf') {
+      handleExportPDF(timeline, title);
+    }
+  };
+
+  const handleExportWord = async (timeline, title) => {
+    try {
+      const children = [
+        new Paragraph({
+          text: 'Timeline',
+          heading: HeadingLevel.TITLE,
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 400 },
+        }),
+      ];
+
+      // Add summary if available
+      if (timeline.summary) {
+        children.push(
+          new Paragraph({
+            text: 'Summary',
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 200, after: 200 },
+          }),
+          new Paragraph({
+            text: timeline.summary,
+            spacing: { after: 400 },
+          })
+        );
+      }
+
+      // Add events
+      if (timeline.events && timeline.events.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Events',
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 400, after: 300 },
+          })
+        );
+
+        timeline.events.forEach((event, idx) => {
+          const dateStr = event.start && event.end && event.start !== event.end
+            ? `${event.start} - ${event.end}`
+            : event.timestamp || event.start || 'Date TBD';
+
+          children.push(
+            new Paragraph({
+              text: `Event ${idx + 1}: ${event.event || event.title || 'Untitled Event'}`,
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 300, after: 200 },
+            }),
+            new Paragraph({
+              text: `Date: ${dateStr}`,
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              text: event.description || 'No description available.',
+              spacing: { after: 200 },
+            })
+          );
+
+          if (event.impact) {
+            children.push(
+              new Paragraph({
+                text: 'Impact:',
+                spacing: { before: 200, after: 100 },
+              }),
+              new Paragraph({
+                text: event.impact,
+                spacing: { after: 200 },
+              })
+            );
+          }
+
+          if (event.context) {
+            children.push(
+              new Paragraph({
+                text: 'Context:',
+                spacing: { before: 200, after: 100 },
+              }),
+              new Paragraph({
+                text: event.context,
+                spacing: { after: 400 },
+              })
+            );
+          }
+        });
+      }
+
+      const doc = new Document({
+        sections: [{
+          children,
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}_timeline.docx`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting to Word:', error);
+      alert('❌ Failed to export to Word. Please try again.');
+    }
+  };
+
+  const handleExportPDF = async (timeline, title) => {
+    try {
+      const pdf = new jsPDF();
+      let yPosition = 20;
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 20;
+      const lineHeight = 7;
+      const maxWidth = pdf.internal.pageSize.width - (margin * 2);
+
+      // Helper function to add text with word wrap
+      const addText = (text, fontSize = 12, isBold = false, spacing = lineHeight) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        if (yPosition + (lines.length * spacing) > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        
+        lines.forEach((line) => {
+          pdf.text(line, margin, yPosition);
+          yPosition += spacing;
+        });
+        yPosition += spacing * 0.5;
+      };
+
+      // Title
+      addText('Timeline', 20, true, 10);
+      yPosition += 5;
+
+      // Summary
+      if (timeline.summary) {
+        addText('Summary', 16, true, 8);
+        addText(timeline.summary, 11, false, 6);
+        yPosition += 5;
+      }
+
+      // Events
+      if (timeline.events && timeline.events.length > 0) {
+        addText('Events', 16, true, 8);
+        yPosition += 3;
+
+        timeline.events.forEach((event, idx) => {
+          const dateStr = event.start && event.end && event.start !== event.end
+            ? `${event.start} - ${event.end}`
+            : event.timestamp || event.start || 'Date TBD';
+
+          addText(`Event ${idx + 1}: ${event.event || event.title || 'Untitled Event'}`, 14, true, 7);
+          addText(`Date: ${dateStr}`, 10, false, 5);
+          addText(event.description || 'No description available.', 10, false, 5);
+
+          if (event.impact) {
+            addText('Impact:', 11, true, 6);
+            addText(event.impact, 10, false, 5);
+          }
+
+          if (event.context) {
+            addText('Context:', 11, true, 6);
+            addText(event.context, 10, false, 5);
+          }
+
+          yPosition += 5;
+        });
+      }
+
+      pdf.save(`${title}_timeline.pdf`);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('❌ Failed to export to PDF. Please try again.');
+    }
   };
 
   const events = output?.results?.timeline?.events || [];
@@ -216,9 +415,26 @@ function TimelinePage() {
                 <button onClick={handleSave} className="canvas-btn save-btn">
                   <FaSave /> Save Timeline
                 </button>
-                <button onClick={handleExport} className="canvas-btn export-btn">
-                  <FaDownload /> Export
-                </button>
+                <div className="export-dropdown">
+                  <button className="canvas-btn export-btn" onClick={(e) => {
+                    e.stopPropagation();
+                    const menu = e.currentTarget.nextElementSibling;
+                    menu.classList.toggle('show');
+                  }}>
+                    <FaDownload /> Export <span className="dropdown-arrow">▼</span>
+                  </button>
+                  <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { handleExport('json'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileAlt /> JSON
+                    </button>
+                    <button onClick={() => { handleExport('word'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileWord /> Word
+                    </button>
+                    <button onClick={() => { handleExport('pdf'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFilePdf /> PDF
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
