@@ -77,6 +77,23 @@ function TimelinePage() {
     }
   };
 
+  const handleExport = () => {
+    if (!output || !output.results || !output.results.timeline) {
+      alert('❌ No timeline data to export');
+      return;
+    }
+
+    const dataStr = JSON.stringify(output.results.timeline, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    const title = inputText.substring(0, 30).replace(/[^a-z0-9]/gi, '_') || 'timeline';
+    link.download = `${title}_timeline.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const events = output?.results?.timeline?.events || [];
   const filteredEvents = searchQuery
     ? events.filter(e =>
@@ -199,7 +216,7 @@ function TimelinePage() {
                 <button onClick={handleSave} className="canvas-btn save-btn">
                   <FaSave /> Save Timeline
                 </button>
-                <button className="canvas-btn export-btn">
+                <button onClick={handleExport} className="canvas-btn export-btn">
                   <FaDownload /> Export
                 </button>
               </div>

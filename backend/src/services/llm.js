@@ -20,8 +20,8 @@ try {
  * Default: Groq (fast, free tier available)
  */
 
-const LLM_PROVIDER = process.env.LLM_PROVIDER || 'ollama'; // groq, together, ollama, replicate
-const LLM_MODEL = process.env.LLM_MODEL || 'llama3.2:1b'; // Using 1B model for better quality while still fast
+const LLM_PROVIDER = process.env.LLM_PROVIDER || 'groq'; // groq, together, ollama, replicate
+const LLM_MODEL = process.env.LLM_MODEL || 'llama-3.1-8b-instant'; // Default Groq model (fast and reliable)
 
 /**
  * Call LLM API with a prompt
@@ -68,7 +68,7 @@ async function callGroq(prompt, systemPrompt, temperature, jsonMode) {
     }
     messages.push({ role: 'user', content: prompt });
 
-    const model = process.env.LLM_MODEL || 'llama-3.1-70b-versatile';
+    const model = process.env.LLM_MODEL || 'llama-3.1-8b-instant';
     
     const response = await groq.chat.completions.create({
       model,
@@ -161,7 +161,7 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
 
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for slower models
 
     try {
       // Simplified Ollama call - minimal options for speed
@@ -171,12 +171,11 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
         stream: false,
       };
       
-      // Only add options if temperature is provided
-      if (temperature !== undefined) {
-        requestBody.options = {
-          temperature: temperature,
-        };
-      }
+      // Add options for balanced speed and quality
+      requestBody.options = {
+        ...(temperature !== undefined && { temperature: temperature }),
+        num_predict: 800, // Increased for better quality responses
+      };
 
       const response = await fetch(`${ollamaUrl}/api/chat`, {
         method: 'POST',
@@ -218,7 +217,7 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
     } catch (fetchError) {
       clearTimeout(timeoutId);
       if (fetchError.name === 'AbortError') {
-        throw new Error('Request timed out after 45 seconds. Ollama may be slow or overloaded. Try restarting Ollama or using a smaller model.');
+        throw new Error('Request timed out after 60 seconds. Ollama may be slow or overloaded. Try restarting Ollama.');
       }
       throw fetchError;
     }

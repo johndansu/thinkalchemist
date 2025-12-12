@@ -2,6 +2,23 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../config/database');
 const { verifyAuth } = require('../middleware/auth');
+const { createClient } = require('@supabase/supabase-js');
+
+// Helper function to create a user-authenticated Supabase client for RLS
+function getUserSupabase(req) {
+  const authHeader = req.headers.authorization;
+  const userToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  
+  return createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: userToken ? { Authorization: `Bearer ${userToken}` } : {}
+      }
+    }
+  );
+}
 
 // Save a forge
 router.post('/save', verifyAuth, async (req, res) => {
@@ -25,7 +42,10 @@ router.post('/save', verifyAuth, async (req, res) => {
       return res.status(400).json({ error: 'outputJson must be a valid JSON object' });
     }
 
-    const { data, error } = await supabase
+    // Use user-authenticated client for RLS
+    const userSupabase = getUserSupabase(req);
+    
+    const { data, error } = await userSupabase
       .from('forges')
       .insert({
         user_id: req.user.id,
@@ -72,7 +92,10 @@ router.get('/list', verifyAuth, async (req, res) => {
       return res.status(503).json({ error: 'Database not configured. Please add Supabase credentials to .env' });
     }
 
-    const { data, error } = await supabase
+    // Use user-authenticated client for RLS
+    const userSupabase = getUserSupabase(req);
+    
+    const { data, error } = await userSupabase
       .from('forges')
       .select('*')
       .eq('user_id', req.user.id)
@@ -110,7 +133,10 @@ router.get('/:id', verifyAuth, async (req, res) => {
 
     const { id } = req.params;
 
-    const { data, error } = await supabase
+    // Use user-authenticated client for RLS
+    const userSupabase = getUserSupabase(req);
+    
+    const { data, error } = await userSupabase
       .from('forges')
       .select('*')
       .eq('id', id)
@@ -138,7 +164,10 @@ router.delete('/:id', verifyAuth, async (req, res) => {
 
     const { id } = req.params;
 
-    const { error } = await supabase
+    // Use user-authenticated client for RLS
+    const userSupabase = getUserSupabase(req);
+    
+    const { error } = await userSupabase
       .from('forges')
       .delete()
       .eq('id', id)
