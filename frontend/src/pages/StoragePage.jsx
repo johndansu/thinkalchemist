@@ -11,7 +11,7 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaSearch as FaStressTest,
-  FaGlobe,
+  FaLightbulb,
   FaFilter,
   FaTimes,
   FaClock,
@@ -26,7 +26,7 @@ function StoragePage() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedForge, setSelectedForge] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, personas, timeline, purification, stress_test, world_building
+  const [filter, setFilter] = useState('all'); // all, concept_breakdown, timeline, purification, stress_test, creative_personas
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -135,22 +135,22 @@ function StoragePage() {
 
   const getModeIcon = (mode) => {
     const icons = {
-      personas: FaUsers,
+      concept_breakdown: FaLightbulb,
+      creative_personas: FaUsers,
       timeline: FaCalendarAlt,
       purification: FaFileAlt,
-      stress_test: FaStressTest,
-      world_building: FaGlobe
+      stress_test: FaStressTest
     };
     return icons[mode] || FaFileAlt;
   };
 
   const getModeColor = (mode) => {
     const colors = {
-      personas: '#8B5A3C',
-      timeline: '#A67C52',
-      purification: '#C9A87A',
-      stress_test: '#D4B896',
-      world_building: '#E5D4B8'
+      concept_breakdown: '#8B5A3C',
+      creative_personas: '#A67C52',
+      timeline: '#C9A87A',
+      purification: '#D4B896',
+      stress_test: '#E5D4B8'
     };
     return colors[mode] || '#C9A87A';
   };
@@ -286,12 +286,12 @@ function StoragePage() {
               <span className="chip-count">{alchemyModeCounts.stress_test || 0}</span>
             </button>
             <button
-              className={`filter-chip ${filter === 'world_building' ? 'active' : ''}`}
-              onClick={() => setFilter('world_building')}
+              className={`filter-chip ${filter === 'creative_personas' ? 'active' : ''}`}
+              onClick={() => setFilter('creative_personas')}
             >
-              <FaGlobe className="chip-icon" />
-              World Building
-              <span className="chip-count">{alchemyModeCounts.world_building || 0}</span>
+              <FaUsers className="chip-icon" />
+              Creative Personas
+              <span className="chip-count">{alchemyModeCounts.creative_personas || 0}</span>
             </button>
           </div>
         </div>

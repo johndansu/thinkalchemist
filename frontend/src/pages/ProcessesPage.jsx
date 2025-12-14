@@ -1,27 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaUsers, 
+  FaLightbulb, 
   FaCalendarAlt, 
   FaFileAlt, 
   FaSearch, 
+  FaUsers,
   FaGlobe 
 } from 'react-icons/fa';
 
 function ProcessesPage() {
   const processes = [
     {
-      id: 'personas',
-      icon: <FaUsers />,
-      title: 'Personas & User Insight Simulation',
-      description: 'Generate fictional user personas with pain points, preferences, and honest feedback for your product ideas.',
-      useCase: 'Perfect for product concepts, business ideas, and feature requests.',
+      id: 'concept-breakdown',
+      icon: <FaLightbulb />,
+      title: 'Concept Breakdown',
+      description: 'Break down your concepts into structured components, potential applications, strengths, challenges, and actionable insights.',
+      useCase: 'Perfect for product concepts, business ideas, feature requests, and strategic planning.',
       output: [
-        '3-5 fictional user personas',
-        'Pain points and preferences',
-        'Brutally honest quotes',
-        'Willingness-to-pay scores',
-        'Professional product researcher style'
+        'Core essence distillation',
+        'Key components breakdown',
+        'Potential applications analysis',
+        'Strengths and challenges',
+        'Refined variations',
+        'Actionable next steps'
       ]
     },
     {
@@ -67,18 +69,18 @@ function ProcessesPage() {
       ]
     },
     {
-      id: 'world-building',
-      icon: <FaGlobe />,
-      title: 'World-Building Alchemy',
-      description: 'Expand your creative concepts into rich settings, characters, conflicts, and immersive micro-stories.',
-      useCase: 'Perfect for fantasy/sci-fi writing, creative projects, and storytelling.',
+      id: 'creative-personas',
+      icon: <FaUsers />,
+      title: 'Creative Personas & Worlds',
+      description: 'Transform concepts into immersive user personas and rich creative worlds with characters, settings, and stories.',
+      useCase: 'Perfect for product concepts, creative projects, world-building, and storytelling.',
       output: [
-        'Detailed setting descriptions',
-        'Character profiles (2-4 main characters)',
-        'Conflict and tension analysis',
+        '4-6 detailed user personas',
+        'Rich creative world setting',
+        'Character profiles (3-4 characters)',
+        'Conflict and narrative tension',
         'Map/location descriptions',
-        '150-word immersive micro-story',
-        'Mature, immersive tone'
+        'Immersive micro-story (150-200 words)'
       ]
     }
   ];
@@ -115,7 +117,7 @@ function ProcessesPage() {
             </div>
 
             <Link 
-              to={`/forge/${process.id === 'stress-test' ? 'stress-test' : process.id === 'world-building' ? 'world-building' : process.id}`} 
+              to={`/forge/${process.id === 'stress-test' ? 'stress-test' : process.id === 'concept-breakdown' ? 'concept-breakdown' : process.id === 'creative-personas' ? 'creative-personas' : process.id}`} 
               className="process-try-button"
             >
               Try This Process

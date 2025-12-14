@@ -1,9 +1,9 @@
 const { callLLM } = require('./llm');
 
 const CLASSIFICATION_PROMPT = `Analyze the following text and classify it into one or more categories. Return a JSON object with:
-- primary_type: "idea" | "story" | "event_sequence" | "messy_document" | "world_building" | "mixed"
+- primary_type: "idea" | "story" | "event_sequence" | "messy_document" | "creative_concept" | "mixed"
 - confidence: 0-1 (number)
-- suggested_modes: array of alchemy modes to apply (can include: "personas", "timeline", "purification", "stress_test", "world_building")
+- suggested_modes: array of alchemy modes to apply (can include: "concept_breakdown", "creative_personas", "timeline", "purification", "stress_test")
 - keywords: array of relevant keywords
 
 Categories:
@@ -11,7 +11,7 @@ Categories:
 - story: Narratives, creative writing, fictional content, stories
 - event_sequence: Historical events, timelines, chronological sequences, project timelines
 - messy_document: Unstructured text, poor grammar, needs cleaning, rough drafts
-- world_building: Fantasy/sci-fi settings, character descriptions, lore, creative concepts
+- creative_concept: Fantasy/sci-fi settings, character descriptions, lore, creative concepts, world-building ideas
 - mixed: Multiple types present
 
 Text to classify: {input}`;

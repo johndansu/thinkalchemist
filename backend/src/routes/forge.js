@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { classifyInput } = require('../services/classifier');
-const { generatePersonas } = require('../services/alchemy/personas');
+const { generateCreativePersonas } = require('../services/alchemy/creativePersonas');
+const { breakdownConcept } = require('../services/alchemy/ideaSynthesis');
 const { generateTimeline } = require('../services/alchemy/timeline');
 const { purifyDocument } = require('../services/alchemy/purification');
 const { stressTestIdea } = require('../services/alchemy/stressTest');
-const { buildWorld } = require('../services/alchemy/worldBuilding');
 
 router.post('/transform', async (req, res) => {
   try {
@@ -30,11 +30,11 @@ router.post('/transform', async (req, res) => {
     // If specific mode is requested, use it directly
     if (mode) {
       const modeMap = {
-        'personas': 'personas',
+        'creative_personas': 'creative_personas',
+        'concept_breakdown': 'concept_breakdown',
         'timeline': 'timeline',
         'purification': 'purification',
-        'stress_test': 'stress_test',
-        'world_building': 'world_building'
+        'stress_test': 'stress_test'
       };
       
       const targetMode = modeMap[mode];
@@ -47,8 +47,11 @@ router.post('/transform', async (req, res) => {
 
       // Run only the requested mode
       switch (targetMode) {
-        case 'personas':
-          results.personas = await generatePersonas(inputText);
+        case 'creative_personas':
+          results.creativePersonas = await generateCreativePersonas(inputText);
+          break;
+        case 'concept_breakdown':
+          results.conceptBreakdown = await breakdownConcept(inputText);
           break;
         case 'timeline':
           results.timeline = await generateTimeline(inputText);
@@ -58,9 +61,6 @@ router.post('/transform', async (req, res) => {
           break;
         case 'stress_test':
           results.stressTest = await stressTestIdea(inputText);
-          break;
-        case 'world_building':
-          results.worldBuilding = await buildWorld(inputText);
           break;
       }
 
@@ -77,8 +77,12 @@ router.post('/transform', async (req, res) => {
       const modes = classification.suggested_modes || [];
 
       // Run relevant alchemy modes based on classification
-      if (modes.includes('personas')) {
-        results.personas = await generatePersonas(inputText);
+      if (modes.includes('creative_personas')) {
+        results.creativePersonas = await generateCreativePersonas(inputText);
+      }
+      
+      if (modes.includes('concept_breakdown')) {
+        results.conceptBreakdown = await breakdownConcept(inputText);
       }
       
       if (modes.includes('timeline')) {
@@ -91,10 +95,6 @@ router.post('/transform', async (req, res) => {
       
       if (modes.includes('stress_test')) {
         results.stressTest = await stressTestIdea(inputText);
-      }
-      
-      if (modes.includes('world_building')) {
-        results.worldBuilding = await buildWorld(inputText);
       }
     }
 

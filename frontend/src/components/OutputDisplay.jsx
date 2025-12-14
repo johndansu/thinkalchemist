@@ -9,12 +9,65 @@ function OutputDisplay({ output, onSave }) {
 
   return (
     <div className="output-container">
-      {results.personas && (
+      {results.conceptBreakdown && (
         <section>
-          <h2>Personas & Insights</h2>
-          {results.personas.personas?.map((persona, idx) => (
-            <PersonaCard key={idx} persona={persona} />
-          ))}
+          <h2>Concept Breakdown</h2>
+          <div className="concept-breakdown">
+            <p><strong>Core Essence:</strong> {results.conceptBreakdown.core_essence}</p>
+            {results.conceptBreakdown.key_components && results.conceptBreakdown.key_components.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Key Components:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  {results.conceptBreakdown.key_components.map((component, idx) => (
+                    <li key={idx}>
+                      <strong>{component.name}</strong> ({component.importance}): {component.description}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {results.conceptBreakdown.synthesis_insights && (
+              <p style={{ marginTop: '1rem' }}>
+                <strong>Insights:</strong> {results.conceptBreakdown.synthesis_insights}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {results.creativePersonas && (
+        <section>
+          <h2>Creative Personas & Worlds</h2>
+          {results.creativePersonas.personas && results.creativePersonas.personas.length > 0 && (
+            <div style={{ marginBottom: '2rem' }}>
+              <h3>Personas</h3>
+              {results.creativePersonas.personas.map((persona, idx) => (
+                <PersonaCard key={idx} persona={persona} />
+              ))}
+            </div>
+          )}
+          {results.creativePersonas.world && (
+            <div className="world-building">
+              <h3>Creative World</h3>
+              <p><strong>Setting:</strong> {results.creativePersonas.world.setting}</p>
+              {results.creativePersonas.world.characters && results.creativePersonas.world.characters.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <strong>Characters:</strong>
+                  <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                    {results.creativePersonas.world.characters.map((char, idx) => (
+                      <li key={idx}>
+                        <strong>{char.name}</strong> ({char.role}): {char.description}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p style={{ marginTop: '1rem' }}><strong>Conflict:</strong> {results.creativePersonas.world.conflict}</p>
+              {results.creativePersonas.world.micro_story && (
+                <p style={{ marginTop: '1rem', fontStyle: 'italic' }}>{results.creativePersonas.world.micro_story}</p>
+              )}
+            </div>
+          )}
         </section>
       )}
 
@@ -76,36 +129,6 @@ function OutputDisplay({ output, onSave }) {
         </section>
       )}
 
-      {results.worldBuilding && (
-        <section>
-          <h2>World Building</h2>
-          <div className="world-building">
-            <p><strong>Setting:</strong> {results.worldBuilding.setting}</p>
-            {results.worldBuilding.characters && results.worldBuilding.characters.length > 0 && (
-              <div style={{ marginBottom: '1rem' }}>
-                <strong>Characters:</strong>
-                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                  {results.worldBuilding.characters.map((char, idx) => (
-                    <li key={idx}>
-                      <strong>{char.name}</strong> ({char.role}): {char.description}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <p><strong>Conflict:</strong> {results.worldBuilding.conflict}</p>
-            {results.worldBuilding.map_description && (
-              <p><strong>Map Description:</strong> {results.worldBuilding.map_description}</p>
-            )}
-            <p style={{ marginTop: '1rem', fontStyle: 'italic' }}>{results.worldBuilding.micro_story}</p>
-            {results.worldBuilding.tone && (
-              <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--burnt-umber)' }}>
-                <strong>Tone:</strong> {results.worldBuilding.tone}
-              </p>
-            )}
-          </div>
-        </section>
-      )}
 
       {onSave && (
         <button onClick={onSave} className="save-button">

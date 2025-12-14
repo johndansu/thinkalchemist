@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaUsers, 
+  FaLightbulb, 
   FaCalendarAlt, 
   FaFileAlt, 
   FaSearch, 
-  FaGlobe, 
+  FaUsers, 
+  FaGlobe,
   FaSave 
 } from 'react-icons/fa';
 
@@ -45,12 +46,12 @@ function LandingPage() {
         <div className="features-container">
           <h2 className="features-title">What Can You Forge?</h2>
           <div className="features-grid">
-            <Link to="/forge/personas" className="feature-card">
+            <Link to="/forge/concept-breakdown" className="feature-card">
               <div className="feature-icon">
-                <FaUsers />
+                <FaLightbulb />
               </div>
-              <h3>Personas & Insights</h3>
-              <p>Generate fictional user personas with pain points, preferences, and honest feedback for your product ideas.</p>
+              <h3>Concept Breakdown</h3>
+              <p>Break down your concepts into structured components, potential applications, strengths, challenges, and actionable next steps.</p>
             </Link>
             
             <Link to="/forge/timeline" className="feature-card">
@@ -77,12 +78,12 @@ function LandingPage() {
               <p>Get a reality check on your ideas with best-case scenarios, risks, and improvement suggestions.</p>
             </Link>
             
-            <Link to="/forge/world-building" className="feature-card">
+            <Link to="/forge/creative-personas" className="feature-card">
               <div className="feature-icon">
-                <FaGlobe />
+                <FaUsers />
               </div>
-              <h3>World Building</h3>
-              <p>Expand your creative concepts into rich settings, characters, conflicts, and immersive micro-stories.</p>
+              <h3>Creative Personas & Worlds</h3>
+              <p>Transform concepts into immersive user personas and rich creative worlds with characters, settings, and stories.</p>
             </Link>
             
             <div className="feature-card">

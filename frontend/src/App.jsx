@@ -5,11 +5,11 @@ import LandingPage from './pages/LandingPage';
 import MyCreationsPage from './pages/MyCreationsPage';
 import ProcessesPage from './pages/ProcessesPage';
 import StoragePage from './pages/StoragePage';
-import PersonasPage from './pages/PersonasPage';
+import CreativePersonasPage from './pages/CreativePersonasPage';
+import ConceptBreakdownPage from './pages/ConceptBreakdownPage';
 import TimelinePage from './pages/TimelinePage';
 import PurificationPage from './pages/PurificationPage';
 import StressTestPage from './pages/StressTestPage';
-import WorldBuildingPage from './pages/WorldBuildingPage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import './styles/main.css';
@@ -30,8 +30,12 @@ function AppContent() {
             element={<ProcessesPage />} 
           />
           <Route 
-            path="/forge/personas" 
-            element={<PersonasPage />} 
+            path="/forge/creative-personas" 
+            element={<CreativePersonasPage />} 
+          />
+          <Route 
+            path="/forge/concept-breakdown" 
+            element={<ConceptBreakdownPage />} 
           />
           <Route 
             path="/forge/timeline" 
@@ -44,10 +48,6 @@ function AppContent() {
           <Route 
             path="/forge/stress-test" 
             element={<StressTestPage />} 
-          />
-          <Route 
-            path="/forge/world-building" 
-            element={<WorldBuildingPage />} 
           />
           <Route 
             path="/creations" 
