@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PersonaCard from '../components/PersonaCard';
 import { forgeAPI, savedAPI } from '../services/api';
+import { useForgeLoading } from '../hooks/useForgeLoading';
 import { FaUsers, FaGlobe, FaMap, FaUser, FaTheaterMasks, FaBook, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function CreativePersonasPage() {
@@ -71,6 +72,7 @@ function CreativePersonasPage() {
   const creativePersonas = output?.results?.creativePersonas;
   const personas = creativePersonas?.personas || [];
   const world = creativePersonas?.world;
+  const loadingMessage = useForgeLoading(loading);
 
   return (
     <>
@@ -292,7 +294,7 @@ function CreativePersonasPage() {
         {loading && (
           <div className="creative-loading">
             <div className="loading-spinner"></div>
-            <p>Forging creative personas and world...</p>
+            <p>{loadingMessage}</p>
           </div>
         )}
       </div>

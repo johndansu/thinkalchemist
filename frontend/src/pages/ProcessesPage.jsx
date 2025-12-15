@@ -1,29 +1,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaLightbulb, 
+  FaChartLine,
+  FaFlask,
   FaCalendarAlt, 
   FaFileAlt, 
-  FaSearch, 
-  FaUsers,
-  FaGlobe 
+  FaUsers
 } from 'react-icons/fa';
 
 function ProcessesPage() {
   const processes = [
     {
-      id: 'concept-breakdown',
-      icon: <FaLightbulb />,
-      title: 'Concept Breakdown',
-      description: 'Break down your concepts into structured components, potential applications, strengths, challenges, and actionable insights.',
-      useCase: 'Perfect for product concepts, business ideas, feature requests, and strategic planning.',
+      id: 'strategic-analysis',
+      icon: <FaChartLine />,
+      title: 'Strategic Analysis',
+      description: 'Comprehensive strategic analysis combining concept breakdown with best/worst case scenarios, risks, and improvements.',
+      useCase: 'Perfect for business ideas, product concepts, strategic initiatives, and investment decisions.',
       output: [
-        'Core essence distillation',
-        'Key components breakdown',
+        'Core essence and component breakdown',
+        'Best-case and worst-case scenarios',
+        'Hidden risks identification',
         'Potential applications analysis',
-        'Strengths and challenges',
-        'Refined variations',
-        'Actionable next steps'
+        'One-line pitch',
+        '10× improvement recommendations',
+        'Strategic insights and next steps'
+      ]
+    },
+    {
+      id: 'thought-catalyst',
+      icon: <FaFlask />,
+      title: 'Thought Catalyst',
+      description: 'Spark unexpected insights, random connections, and creative ways of thinking about any concept or idea.',
+      useCase: 'Perfect for creative thinking, brainstorming, finding unexpected connections, and sparking new ideas.',
+      output: [
+        '6-8 random creative insights',
+        '4-5 unexpected connections to unrelated concepts',
+        '4-5 alternative angles and approaches',
+        '3-4 thought experiments and "what if" scenarios',
+        '5-6 creative questions that challenge assumptions',
+        'Synthesis of catalyzed thoughts'
       ]
     },
     {
@@ -52,20 +67,6 @@ function ProcessesPage() {
         'Clean headings and structure',
         'Proper spacing and formatting',
         'Human tone (non-AI)'
-      ]
-    },
-    {
-      id: 'stress-test',
-      icon: <FaSearch />,
-      title: 'Idea Stress Test Engine',
-      description: 'Get a reality check on your ideas with best-case scenarios, risks, and improvement suggestions.',
-      useCase: 'Useful for validating business ideas, product concepts, and strategic planning.',
-      output: [
-        'Best-case scenario analysis',
-        'Worst-case scenario analysis',
-        '3 hidden risks identified',
-        'One-line pitch',
-        '10× improvement suggestions'
       ]
     },
     {
@@ -117,7 +118,7 @@ function ProcessesPage() {
             </div>
 
             <Link 
-              to={`/forge/${process.id === 'stress-test' ? 'stress-test' : process.id === 'concept-breakdown' ? 'concept-breakdown' : process.id === 'creative-personas' ? 'creative-personas' : process.id}`} 
+              to={`/forge/${process.id === 'strategic-analysis' ? 'strategic-analysis' : process.id === 'thought-catalyst' ? 'thought-catalyst' : process.id === 'creative-personas' ? 'creative-personas' : process.id}`} 
               className="process-try-button"
             >
               Try This Process

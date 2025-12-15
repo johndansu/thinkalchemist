@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TimelineView from '../components/TimelineView';
 import { forgeAPI, savedAPI } from '../services/api';
+import { useForgeLoading } from '../hooks/useForgeLoading';
 import { FaCalendarAlt, FaSearch, FaSearchPlus, FaSearchMinus, FaSave, FaDownload, FaFileAlt, FaPaperPlane, FaArrowLeft, FaFileWord, FaFilePdf } from 'react-icons/fa';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import jsPDF from 'jspdf';
@@ -293,6 +294,7 @@ function TimelinePage() {
     }
   };
 
+  const loadingMessage = useForgeLoading(loading);
   const events = output?.results?.timeline?.events || [];
   const filteredEvents = searchQuery
     ? events.filter(e =>
@@ -462,7 +464,7 @@ function TimelinePage() {
       {loading && (
         <div className="timeline-loading">
           <div className="loading-spinner"></div>
-          <p>Extracting and structuring timeline events...</p>
+          <p>{loadingMessage}</p>
         </div>
       )}
       </div>

@@ -9,16 +9,17 @@ function OutputDisplay({ output, onSave }) {
 
   return (
     <div className="output-container">
-      {results.conceptBreakdown && (
+      {results.strategicAnalysis && (
         <section>
-          <h2>Concept Breakdown</h2>
-          <div className="concept-breakdown">
-            <p><strong>Core Essence:</strong> {results.conceptBreakdown.core_essence}</p>
-            {results.conceptBreakdown.key_components && results.conceptBreakdown.key_components.length > 0 && (
+          <h2>Strategic Analysis</h2>
+          <div className="strategic-analysis">
+            <p><strong>Core Essence:</strong> {results.strategicAnalysis.core_essence}</p>
+            <p><strong>One-Line Pitch:</strong> {results.strategicAnalysis.one_line_pitch}</p>
+            {results.strategicAnalysis.key_components && results.strategicAnalysis.key_components.length > 0 && (
               <div style={{ marginTop: '1rem' }}>
                 <strong>Key Components:</strong>
                 <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                  {results.conceptBreakdown.key_components.map((component, idx) => (
+                  {results.strategicAnalysis.key_components.map((component, idx) => (
                     <li key={idx}>
                       <strong>{component.name}</strong> ({component.importance}): {component.description}
                     </li>
@@ -26,9 +27,59 @@ function OutputDisplay({ output, onSave }) {
                 </ul>
               </div>
             )}
-            {results.conceptBreakdown.synthesis_insights && (
+            <div style={{ marginTop: '1rem' }}>
+              <strong>Best Case:</strong> {results.strategicAnalysis.best_case}
+            </div>
+            <div style={{ marginTop: '1rem' }}>
+              <strong>Worst Case:</strong> {results.strategicAnalysis.worst_case}
+            </div>
+            {results.strategicAnalysis.hidden_risks && results.strategicAnalysis.hidden_risks.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Hidden Risks:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  {results.strategicAnalysis.hidden_risks.map((risk, idx) => (
+                    <li key={idx}>{risk}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {results.strategicAnalysis.strategic_insights && (
               <p style={{ marginTop: '1rem' }}>
-                <strong>Insights:</strong> {results.conceptBreakdown.synthesis_insights}
+                <strong>Strategic Insights:</strong> {results.strategicAnalysis.strategic_insights}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {results.thoughtCatalyst && (
+        <section>
+          <h2>Thought Catalyst</h2>
+          <div className="thought-catalyst">
+            <p><strong>Input:</strong> {results.thoughtCatalyst.core_input}</p>
+            {results.thoughtCatalyst.random_insights && results.thoughtCatalyst.random_insights.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Random Insights:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  {results.thoughtCatalyst.random_insights.map((insight, idx) => (
+                    <li key={idx}>{insight}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {results.thoughtCatalyst.unexpected_connections && results.thoughtCatalyst.unexpected_connections.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Unexpected Connections:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  {results.thoughtCatalyst.unexpected_connections.map((connection, idx) => (
+                    <li key={idx}>{connection}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {results.thoughtCatalyst.synthesis && (
+              <p style={{ marginTop: '1rem' }}>
+                <strong>Synthesis:</strong> {results.thoughtCatalyst.synthesis}
               </p>
             )}
           </div>
@@ -97,37 +148,6 @@ function OutputDisplay({ output, onSave }) {
         </section>
       )}
 
-      {results.stressTest && (
-        <section>
-          <h2>Reality Check</h2>
-          <div className="stress-test">
-            <div>
-              <strong>Best Case:</strong> {results.stressTest.best_case}
-            </div>
-            <div>
-              <strong>Worst Case:</strong> {results.stressTest.worst_case}
-            </div>
-            <div>
-              <strong>One-Line Pitch:</strong> {results.stressTest.one_line_pitch}
-            </div>
-            {results.stressTest.hidden_risks && results.stressTest.hidden_risks.length > 0 && (
-              <div>
-                <strong>Hidden Risks:</strong>
-                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                  {results.stressTest.hidden_risks.map((risk, idx) => (
-                    <li key={idx}>{risk}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {results.stressTest.improvement_suggestion && (
-              <div>
-                <strong>If I had to make this 10× better:</strong> {results.stressTest.improvement_suggestion}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
 
       {onSave && (

@@ -46,12 +46,20 @@ function LandingPage() {
         <div className="features-container">
           <h2 className="features-title">What Can You Forge?</h2>
           <div className="features-grid">
-            <Link to="/forge/concept-breakdown" className="feature-card">
+            <Link to="/forge/strategic-analysis" className="feature-card">
               <div className="feature-icon">
-                <FaLightbulb />
+                <FaChartLine />
               </div>
-              <h3>Concept Breakdown</h3>
-              <p>Break down your concepts into structured components, potential applications, strengths, challenges, and actionable next steps.</p>
+              <h3>Strategic Analysis</h3>
+              <p>Comprehensive strategic analysis combining concept breakdown with best/worst case scenarios, risks, and improvements.</p>
+            </Link>
+            
+            <Link to="/forge/thought-catalyst" className="feature-card">
+              <div className="feature-icon">
+                <FaFlask />
+              </div>
+              <h3>Thought Catalyst</h3>
+              <p>Spark unexpected insights, random connections, and creative ways of thinking about any concept or idea.</p>
             </Link>
             
             <Link to="/forge/timeline" className="feature-card">
@@ -68,14 +76,6 @@ function LandingPage() {
               </div>
               <h3>Document Purification</h3>
               <p>Clean and refine messy text with better grammar, clarity, and structure while maintaining a human tone.</p>
-            </Link>
-            
-            <Link to="/forge/stress-test" className="feature-card">
-              <div className="feature-icon">
-                <FaSearch />
-              </div>
-              <h3>Idea Stress Test</h3>
-              <p>Get a reality check on your ideas with best-case scenarios, risks, and improvement suggestions.</p>
             </Link>
             
             <Link to="/forge/creative-personas" className="feature-card">

@@ -3,7 +3,7 @@ const { callLLM } = require('./llm');
 const CLASSIFICATION_PROMPT = `Analyze the following text and classify it into one or more categories. Return a JSON object with:
 - primary_type: "idea" | "story" | "event_sequence" | "messy_document" | "creative_concept" | "mixed"
 - confidence: 0-1 (number)
-- suggested_modes: array of alchemy modes to apply (can include: "concept_breakdown", "creative_personas", "timeline", "purification", "stress_test")
+- suggested_modes: array of alchemy modes to apply (can include: "strategic_analysis", "thought_catalyst", "creative_personas", "timeline", "purification")
 - keywords: array of relevant keywords
 
 Categories:

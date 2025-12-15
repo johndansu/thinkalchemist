@@ -3,15 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { savedAPI } from '../services/api';
 import { 
   FaTrash, 
-  FaEye, 
+  FaFlask, 
   FaSync, 
   FaDownload, 
   FaSearch,
   FaUsers,
   FaCalendarAlt,
   FaFileAlt,
-  FaSearch as FaStressTest,
-  FaLightbulb,
+  FaChartLine,
   FaFilter,
   FaTimes,
   FaClock,
@@ -26,7 +25,7 @@ function StoragePage() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedForge, setSelectedForge] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, concept_breakdown, timeline, purification, stress_test, creative_personas
+  const [filter, setFilter] = useState('all'); // all, strategic_analysis, thought_catalyst, timeline, purification, creative_personas
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -135,22 +134,22 @@ function StoragePage() {
 
   const getModeIcon = (mode) => {
     const icons = {
-      concept_breakdown: FaLightbulb,
+      strategic_analysis: FaChartLine,
+      thought_catalyst: FaFlask,
       creative_personas: FaUsers,
       timeline: FaCalendarAlt,
-      purification: FaFileAlt,
-      stress_test: FaStressTest
+      purification: FaFileAlt
     };
     return icons[mode] || FaFileAlt;
   };
 
   const getModeColor = (mode) => {
     const colors = {
-      concept_breakdown: '#8B5A3C',
-      creative_personas: '#A67C52',
-      timeline: '#C9A87A',
-      purification: '#D4B896',
-      stress_test: '#E5D4B8'
+      strategic_analysis: '#8B5A3C',
+      thought_catalyst: '#A67C52',
+      creative_personas: '#C9A87A',
+      timeline: '#D4B896',
+      purification: '#E5D4B8'
     };
     return colors[mode] || '#C9A87A';
   };
@@ -254,12 +253,28 @@ function StoragePage() {
               <span className="chip-count">{alchemyModeCounts.all || 0}</span>
             </button>
             <button
-              className={`filter-chip ${filter === 'personas' ? 'active' : ''}`}
-              onClick={() => setFilter('personas')}
+              className={`filter-chip ${filter === 'strategic_analysis' ? 'active' : ''}`}
+              onClick={() => setFilter('strategic_analysis')}
+            >
+              <FaChartLine className="chip-icon" />
+              Strategic Analysis
+              <span className="chip-count">{alchemyModeCounts.strategic_analysis || 0}</span>
+            </button>
+            <button
+              className={`filter-chip ${filter === 'thought_catalyst' ? 'active' : ''}`}
+              onClick={() => setFilter('thought_catalyst')}
+            >
+              <FaFlask className="chip-icon" />
+              Thought Catalyst
+              <span className="chip-count">{alchemyModeCounts.thought_catalyst || 0}</span>
+            </button>
+            <button
+              className={`filter-chip ${filter === 'creative_personas' ? 'active' : ''}`}
+              onClick={() => setFilter('creative_personas')}
             >
               <FaUsers className="chip-icon" />
-              Personas
-              <span className="chip-count">{alchemyModeCounts.personas || 0}</span>
+              Creative Personas
+              <span className="chip-count">{alchemyModeCounts.creative_personas || 0}</span>
             </button>
             <button
               className={`filter-chip ${filter === 'timeline' ? 'active' : ''}`}
@@ -276,22 +291,6 @@ function StoragePage() {
               <FaFileAlt className="chip-icon" />
               Purification
               <span className="chip-count">{alchemyModeCounts.purification || 0}</span>
-            </button>
-            <button
-              className={`filter-chip ${filter === 'stress_test' ? 'active' : ''}`}
-              onClick={() => setFilter('stress_test')}
-            >
-              <FaStressTest className="chip-icon" />
-              Stress Test
-              <span className="chip-count">{alchemyModeCounts.stress_test || 0}</span>
-            </button>
-            <button
-              className={`filter-chip ${filter === 'creative_personas' ? 'active' : ''}`}
-              onClick={() => setFilter('creative_personas')}
-            >
-              <FaUsers className="chip-icon" />
-              Creative Personas
-              <span className="chip-count">{alchemyModeCounts.creative_personas || 0}</span>
             </button>
           </div>
         </div>

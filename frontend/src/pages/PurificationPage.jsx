@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
+import { useForgeLoading } from '../hooks/useForgeLoading';
 import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 function PurificationPage() {
@@ -62,6 +63,7 @@ function PurificationPage() {
     }
   };
 
+  const loadingMessage = useForgeLoading(loading);
   const cleanedText = output?.results?.purification?.cleaned_text || '';
   const improvements = output?.results?.purification?.improvements || [];
 
@@ -257,7 +259,7 @@ function PurificationPage() {
       {loading && (
         <div className="purification-loading">
           <div className="loading-spinner"></div>
-          <p>Refining your document...</p>
+          <p>{loadingMessage}</p>
         </div>
       )}
       </div>

@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { classifyInput } = require('../services/classifier');
 const { generateCreativePersonas } = require('../services/alchemy/creativePersonas');
-const { breakdownConcept } = require('../services/alchemy/ideaSynthesis');
+const { analyzeStrategically } = require('../services/alchemy/strategicAnalysis');
+const { catalyzeThoughts } = require('../services/alchemy/thoughtCatalyst');
 const { generateTimeline } = require('../services/alchemy/timeline');
 const { purifyDocument } = require('../services/alchemy/purification');
-const { stressTestIdea } = require('../services/alchemy/stressTest');
 
 router.post('/transform', async (req, res) => {
   try {
@@ -31,10 +31,10 @@ router.post('/transform', async (req, res) => {
     if (mode) {
       const modeMap = {
         'creative_personas': 'creative_personas',
-        'concept_breakdown': 'concept_breakdown',
+        'strategic_analysis': 'strategic_analysis',
+        'thought_catalyst': 'thought_catalyst',
         'timeline': 'timeline',
-        'purification': 'purification',
-        'stress_test': 'stress_test'
+        'purification': 'purification'
       };
       
       const targetMode = modeMap[mode];
@@ -50,17 +50,17 @@ router.post('/transform', async (req, res) => {
         case 'creative_personas':
           results.creativePersonas = await generateCreativePersonas(inputText);
           break;
-        case 'concept_breakdown':
-          results.conceptBreakdown = await breakdownConcept(inputText);
+        case 'strategic_analysis':
+          results.strategicAnalysis = await analyzeStrategically(inputText);
+          break;
+        case 'thought_catalyst':
+          results.thoughtCatalyst = await catalyzeThoughts(inputText);
           break;
         case 'timeline':
           results.timeline = await generateTimeline(inputText);
           break;
         case 'purification':
           results.purification = await purifyDocument(inputText);
-          break;
-        case 'stress_test':
-          results.stressTest = await stressTestIdea(inputText);
           break;
       }
 
@@ -81,8 +81,12 @@ router.post('/transform', async (req, res) => {
         results.creativePersonas = await generateCreativePersonas(inputText);
       }
       
-      if (modes.includes('concept_breakdown')) {
-        results.conceptBreakdown = await breakdownConcept(inputText);
+      if (modes.includes('strategic_analysis')) {
+        results.strategicAnalysis = await analyzeStrategically(inputText);
+      }
+      
+      if (modes.includes('thought_catalyst')) {
+        results.thoughtCatalyst = await catalyzeThoughts(inputText);
       }
       
       if (modes.includes('timeline')) {
@@ -91,10 +95,6 @@ router.post('/transform', async (req, res) => {
       
       if (modes.includes('purification')) {
         results.purification = await purifyDocument(inputText);
-      }
-      
-      if (modes.includes('stress_test')) {
-        results.stressTest = await stressTestIdea(inputText);
       }
     }
 
