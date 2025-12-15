@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PersonaCard from '../components/PersonaCard';
 import { forgeAPI, savedAPI } from '../services/api';
 import { useForgeLoading } from '../hooks/useForgeLoading';
-import { FaUsers, FaGlobe, FaMap, FaUser, FaTheaterMasks, FaBook, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
+import { FaUsers, FaGlobe, FaMap, FaUser, FaTheaterMasks, FaBook, FaSave, FaDownload, FaExpand, FaFileAlt, FaPaperPlane, FaArrowLeft, FaFileWord, FaFilePdf } from 'react-icons/fa';
+import { Document, Packer, Paragraph, HeadingLevel } from 'docx';
+import jsPDF from 'jspdf';
 
 function CreativePersonasPage() {
   const navigate = useNavigate();
@@ -73,6 +75,298 @@ function CreativePersonasPage() {
   const personas = creativePersonas?.personas || [];
   const world = creativePersonas?.world;
   const loadingMessage = useForgeLoading(loading);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.export-dropdown')) {
+        document.querySelectorAll('.export-menu').forEach(menu => menu.classList.remove('show'));
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleExport = (format = 'json') => {
+    if (!output || !creativePersonas) {
+      alert('❌ No data to export. Please generate results first.');
+      return;
+    }
+
+    const title = inputText.substring(0, 50).replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'creative_personas';
+
+    if (format === 'json') {
+      try {
+        const dataStr = JSON.stringify(output, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title}_creative_personas.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('❌ Failed to export. Please try again.');
+      }
+    } else if (format === 'word') {
+      handleExportWord(creativePersonas, title);
+    } else if (format === 'pdf') {
+      handleExportPDF(creativePersonas, title);
+    }
+  };
+
+  const handleExportWord = async (data, title) => {
+    try {
+      const children = [];
+
+      children.push(
+        new Paragraph({
+          text: 'Creative Personas & Worlds',
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 300 },
+        })
+      );
+
+      // Personas
+      if (data.personas && data.personas.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Personas',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        data.personas.forEach((persona, idx) => {
+          children.push(
+            new Paragraph({
+              text: `${persona.name} (Age ${persona.age})`,
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: `Occupation: ${persona.occupation}`,
+              spacing: { after: 100 },
+            }),
+            new Paragraph({
+              text: persona.background || '',
+              spacing: { after: 100 },
+            })
+          );
+
+          if (persona.pain_points && persona.pain_points.length > 0) {
+            children.push(
+              new Paragraph({
+                text: 'Pain Points:',
+                spacing: { before: 100, after: 50 },
+              })
+            );
+            persona.pain_points.forEach((point) => {
+              children.push(
+                new Paragraph({
+                  text: `• ${point}`,
+                  spacing: { after: 50 },
+                })
+              );
+            });
+          }
+
+          if (persona.quote) {
+            children.push(
+              new Paragraph({
+                text: `Quote: "${persona.quote}"`,
+                spacing: { before: 100, after: 100 },
+              })
+            );
+          }
+
+          if (persona.feedback) {
+            children.push(
+              new Paragraph({
+                text: `Feedback: ${persona.feedback}`,
+                spacing: { after: 200 },
+              })
+            );
+          }
+        });
+      }
+
+      // World
+      if (data.world) {
+        children.push(
+          new Paragraph({
+            text: 'Creative World',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        if (data.world.setting) {
+          children.push(
+            new Paragraph({
+              text: 'Setting',
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: data.world.setting,
+              spacing: { after: 200 },
+            })
+          );
+        }
+
+        if (data.world.characters && data.world.characters.length > 0) {
+          children.push(
+            new Paragraph({
+              text: 'Characters',
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            })
+          );
+          data.world.characters.forEach((char) => {
+            children.push(
+              new Paragraph({
+                text: `${char.name} - ${char.role}`,
+                heading: HeadingLevel.HEADING_4,
+                spacing: { before: 100, after: 50 },
+              }),
+              new Paragraph({
+                text: char.description,
+                spacing: { after: 100 },
+              })
+            );
+          });
+        }
+
+        if (data.world.conflict) {
+          children.push(
+            new Paragraph({
+              text: 'Conflict',
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: data.world.conflict,
+              spacing: { after: 200 },
+            })
+          );
+        }
+
+        if (data.world.micro_story) {
+          children.push(
+            new Paragraph({
+              text: 'Micro-Story',
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: data.world.micro_story,
+              spacing: { after: 200 },
+            })
+          );
+        }
+      }
+
+      const doc = new Document({
+        sections: [{ children }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}_creative_personas.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting to Word:', error);
+      alert('❌ Failed to export to Word. Please try again.');
+    }
+  };
+
+  const handleExportPDF = async (data, title) => {
+    try {
+      const pdf = new jsPDF();
+      let yPosition = 20;
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 20;
+      const lineHeight = 7;
+      const maxWidth = pdf.internal.pageSize.width - (margin * 2);
+
+      const addText = (text, fontSize = 12, isBold = false, spacing = lineHeight) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        if (yPosition + (lines.length * spacing) > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        
+        lines.forEach((line) => {
+          pdf.text(line, margin, yPosition);
+          yPosition += spacing;
+        });
+        yPosition += spacing * 0.5;
+      };
+
+      addText('Creative Personas & Worlds', 20, true, 10);
+      yPosition += 5;
+
+      if (data.personas && data.personas.length > 0) {
+        addText('Personas', 16, true, 8);
+        yPosition += 3;
+
+        data.personas.forEach((persona) => {
+          addText(`${persona.name} (Age ${persona.age})`, 14, true, 7);
+          addText(`Occupation: ${persona.occupation}`, 10, false, 5);
+          if (persona.background) {
+            addText(persona.background, 10, false, 5);
+          }
+          if (persona.quote) {
+            addText(`"${persona.quote}"`, 10, false, 5);
+          }
+          yPosition += 5;
+        });
+      }
+
+      if (data.world) {
+        addText('Creative World', 16, true, 8);
+        yPosition += 3;
+
+        if (data.world.setting) {
+          addText('Setting', 14, true, 7);
+          addText(data.world.setting, 10, false, 5);
+          yPosition += 3;
+        }
+
+        if (data.world.characters && data.world.characters.length > 0) {
+          addText('Characters', 14, true, 7);
+          yPosition += 3;
+          data.world.characters.forEach((char) => {
+            addText(`${char.name} - ${char.role}`, 12, true, 6);
+            addText(char.description, 10, false, 5);
+            yPosition += 3;
+          });
+        }
+
+        if (data.world.micro_story) {
+          addText('Micro-Story', 14, true, 7);
+          addText(data.world.micro_story, 10, false, 5);
+        }
+      }
+
+      pdf.save(`${title}_creative_personas.pdf`);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('❌ Failed to export to PDF. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -144,9 +438,26 @@ function CreativePersonasPage() {
                 <button onClick={handleSave} className="canvas-action save-action">
                   <FaSave /> Save
                 </button>
-                <button className="canvas-action export-action">
-                  <FaDownload /> Export
-                </button>
+                <div className="export-dropdown">
+                  <button className="canvas-action export-action" onClick={(e) => {
+                    e.stopPropagation();
+                    const menu = e.currentTarget.nextElementSibling;
+                    menu.classList.toggle('show');
+                  }}>
+                    <FaDownload /> Export <span className="dropdown-arrow">▼</span>
+                  </button>
+                  <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { handleExport('json'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileAlt /> JSON
+                    </button>
+                    <button onClick={() => { handleExport('word'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileWord /> Word
+                    </button>
+                    <button onClick={() => { handleExport('pdf'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFilePdf /> PDF
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 

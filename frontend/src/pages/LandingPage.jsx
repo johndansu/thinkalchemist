@@ -7,7 +7,9 @@ import {
   FaSearch, 
   FaUsers, 
   FaGlobe,
-  FaSave 
+  FaSave,
+  FaChartLine,
+  FaFlask
 } from 'react-icons/fa';
 
 function LandingPage() {

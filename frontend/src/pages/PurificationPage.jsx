@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
 import { useForgeLoading } from '../hooks/useForgeLoading';
-import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
+import { FaFileAlt, FaCheckCircle, FaTimesCircle, FaArrowRight, FaSave, FaDownload, FaSync, FaPaperPlane, FaArrowLeft, FaFileWord, FaFilePdf } from 'react-icons/fa';
+import { Document, Packer, Paragraph, HeadingLevel } from 'docx';
+import jsPDF from 'jspdf';
 
 function PurificationPage() {
   const navigate = useNavigate();
@@ -66,6 +68,165 @@ function PurificationPage() {
   const loadingMessage = useForgeLoading(loading);
   const cleanedText = output?.results?.purification?.cleaned_text || '';
   const improvements = output?.results?.purification?.improvements || [];
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.export-dropdown')) {
+        document.querySelectorAll('.export-menu').forEach(menu => menu.classList.remove('show'));
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleExport = (format = 'json') => {
+    if (!output || !cleanedText) {
+      alert('❌ No data to export. Please generate results first.');
+      return;
+    }
+
+    const title = inputText.substring(0, 50).replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'purified_document';
+
+    if (format === 'json') {
+      try {
+        const dataStr = JSON.stringify(output, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title}_purified.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('❌ Failed to export. Please try again.');
+      }
+    } else if (format === 'word') {
+      handleExportWord(cleanedText, improvements, title);
+    } else if (format === 'pdf') {
+      handleExportPDF(cleanedText, improvements, title);
+    }
+  };
+
+  const handleExportWord = async (text, improvements, title) => {
+    try {
+      const children = [];
+
+      children.push(
+        new Paragraph({
+          text: 'Purified Document',
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 300 },
+        })
+      );
+
+      if (improvements && improvements.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Improvements Made',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+        improvements.forEach((improvement) => {
+          children.push(
+            new Paragraph({
+              text: `• ${improvement}`,
+              spacing: { after: 100 },
+            })
+          );
+        });
+        children.push(
+          new Paragraph({
+            text: '',
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      // Split text into paragraphs
+      const paragraphs = text.split('\n').filter(p => p.trim());
+      paragraphs.forEach((para) => {
+        children.push(
+          new Paragraph({
+            text: para.trim(),
+            spacing: { after: 200 },
+          })
+        );
+      });
+
+      const doc = new Document({
+        sections: [{ children }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}_purified.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting to Word:', error);
+      alert('❌ Failed to export to Word. Please try again.');
+    }
+  };
+
+  const handleExportPDF = async (text, improvements, title) => {
+    try {
+      const pdf = new jsPDF();
+      let yPosition = 20;
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 20;
+      const lineHeight = 7;
+      const maxWidth = pdf.internal.pageSize.width - (margin * 2);
+
+      const addText = (text, fontSize = 12, isBold = false, spacing = lineHeight) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        if (yPosition + (lines.length * spacing) > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        
+        lines.forEach((line) => {
+          pdf.text(line, margin, yPosition);
+          yPosition += spacing;
+        });
+        yPosition += spacing * 0.5;
+      };
+
+      addText('Purified Document', 20, true, 10);
+      yPosition += 5;
+
+      if (improvements && improvements.length > 0) {
+        addText('Improvements Made', 16, true, 8);
+        yPosition += 3;
+        improvements.forEach((improvement) => {
+          addText(`• ${improvement}`, 10, false, 5);
+        });
+        yPosition += 5;
+      }
+
+      // Split text into paragraphs
+      const paragraphs = text.split('\n').filter(p => p.trim());
+      paragraphs.forEach((para) => {
+        addText(para.trim(), 11, false, 6);
+      });
+
+      pdf.save(`${title}_purified.pdf`);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('❌ Failed to export to PDF. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -168,9 +329,26 @@ function PurificationPage() {
                 <button onClick={handleSave} className="comparison-btn save-btn">
                   <FaSave /> Save Document
                 </button>
-                <button className="comparison-btn export-btn">
-                  <FaDownload /> Export
-                </button>
+                <div className="export-dropdown">
+                  <button className="comparison-btn export-btn" onClick={(e) => {
+                    e.stopPropagation();
+                    const menu = e.currentTarget.nextElementSibling;
+                    menu.classList.toggle('show');
+                  }}>
+                    <FaDownload /> Export <span className="dropdown-arrow">▼</span>
+                  </button>
+                  <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { handleExport('json'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileAlt /> JSON
+                    </button>
+                    <button onClick={() => { handleExport('word'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileWord /> Word
+                    </button>
+                    <button onClick={() => { handleExport('pdf'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFilePdf /> PDF
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

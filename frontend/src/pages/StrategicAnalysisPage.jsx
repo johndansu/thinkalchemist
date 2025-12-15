@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgeAPI, savedAPI } from '../services/api';
 import { useForgeLoading } from '../hooks/useForgeLoading';
-import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaPuzzlePiece, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
+import { FaSearch, FaArrowUp, FaArrowDown, FaExclamationTriangle, FaRocket, FaChartLine, FaPuzzlePiece, FaSave, FaDownload, FaLightbulb, FaFileAlt, FaPaperPlane, FaArrowLeft, FaFileWord, FaFilePdf } from 'react-icons/fa';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import jsPDF from 'jspdf';
 
 function StrategicAnalysisPage() {
   const navigate = useNavigate();
@@ -63,6 +65,346 @@ function StrategicAnalysisPage() {
   const analysis = output?.results?.strategicAnalysis;
   const risks = analysis?.hidden_risks || [];
   const loadingMessage = useForgeLoading(loading);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.export-dropdown')) {
+        document.querySelectorAll('.export-menu').forEach(menu => menu.classList.remove('show'));
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleExport = (format = 'json') => {
+    if (!output || !analysis) {
+      alert('❌ No analysis data to export. Please generate results first.');
+      return;
+    }
+
+    const title = inputText.substring(0, 50).replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'strategic_analysis';
+
+    if (format === 'json') {
+      try {
+        const dataStr = JSON.stringify(output, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title}_strategic_analysis.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('❌ Failed to export. Please try again.');
+      }
+    } else if (format === 'word') {
+      handleExportWord(analysis, title);
+    } else if (format === 'pdf') {
+      handleExportPDF(analysis, title);
+    }
+  };
+
+  const handleExportWord = async (analysis, title) => {
+    try {
+      const children = [];
+
+      children.push(
+        new Paragraph({
+          text: 'Strategic Analysis',
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 300 },
+        })
+      );
+
+      if (analysis.core_essence) {
+        children.push(
+          new Paragraph({
+            text: 'Core Essence',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          }),
+          new Paragraph({
+            text: analysis.core_essence,
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      if (analysis.one_line_pitch) {
+        children.push(
+          new Paragraph({
+            text: 'One-Line Pitch',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          }),
+          new Paragraph({
+            text: analysis.one_line_pitch,
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      if (analysis.key_components && analysis.key_components.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Key Components',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        analysis.key_components.forEach((component) => {
+          children.push(
+            new Paragraph({
+              text: `${component.name} (${component.importance})`,
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: component.description,
+              spacing: { after: 200 },
+            })
+          );
+        });
+      }
+
+      if (analysis.best_case) {
+        children.push(
+          new Paragraph({
+            text: 'Best Case Scenario',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          }),
+          new Paragraph({
+            text: analysis.best_case,
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      if (analysis.worst_case) {
+        children.push(
+          new Paragraph({
+            text: 'Worst Case Scenario',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          }),
+          new Paragraph({
+            text: analysis.worst_case,
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      if (risks.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Hidden Risks',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        risks.forEach((risk) => {
+          const riskText = typeof risk === 'string' 
+            ? risk 
+            : (risk.risk || risk.description || `${risk.hidden ? 'Hidden: ' : ''}${risk.impact || ''}${risk.warning_signs ? ` Warning: ${risk.warning_signs}` : ''}` || JSON.stringify(risk));
+          children.push(
+            new Paragraph({
+              text: `• ${riskText}`,
+              spacing: { after: 100 },
+            })
+          );
+        });
+      }
+
+      if (analysis.strategic_insights) {
+        children.push(
+          new Paragraph({
+            text: 'Strategic Insights',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          }),
+          new Paragraph({
+            text: analysis.strategic_insights,
+            spacing: { after: 300 },
+          })
+        );
+      }
+
+      if (analysis.potential_applications && analysis.potential_applications.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Potential Applications',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        analysis.potential_applications.forEach((app) => {
+          children.push(
+            new Paragraph({
+              text: `${app.title} (${app.feasibility} feasibility)`,
+              heading: HeadingLevel.HEADING_3,
+              spacing: { before: 200, after: 100 },
+            }),
+            new Paragraph({
+              text: app.description,
+              spacing: { after: 200 },
+            })
+          );
+        });
+      }
+
+      if (analysis.next_steps && analysis.next_steps.length > 0) {
+        children.push(
+          new Paragraph({
+            text: 'Next Steps',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+          })
+        );
+
+        analysis.next_steps.forEach((step, idx) => {
+          const stepText = typeof step === 'string' ? step : (step.step || step.description || JSON.stringify(step));
+          children.push(
+            new Paragraph({
+              text: `${idx + 1}. ${stepText}`,
+              spacing: { after: 100 },
+            })
+          );
+        });
+      }
+
+      const doc = new Document({
+        sections: [{ children }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}_strategic_analysis.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting to Word:', error);
+      alert('❌ Failed to export to Word. Please try again.');
+    }
+  };
+
+  const handleExportPDF = async (analysis, title) => {
+    try {
+      const pdf = new jsPDF();
+      let yPosition = 20;
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 20;
+      const lineHeight = 7;
+      const maxWidth = pdf.internal.pageSize.width - (margin * 2);
+
+      const addText = (text, fontSize = 12, isBold = false, spacing = lineHeight) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        if (yPosition + (lines.length * spacing) > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        
+        lines.forEach((line) => {
+          pdf.text(line, margin, yPosition);
+          yPosition += spacing;
+        });
+        yPosition += spacing * 0.5;
+      };
+
+      addText('Strategic Analysis', 20, true, 10);
+      yPosition += 5;
+
+      if (analysis.core_essence) {
+        addText('Core Essence', 16, true, 8);
+        addText(analysis.core_essence, 11, false, 6);
+        yPosition += 5;
+      }
+
+      if (analysis.one_line_pitch) {
+        addText('One-Line Pitch', 16, true, 8);
+        addText(analysis.one_line_pitch, 11, false, 6);
+        yPosition += 5;
+      }
+
+      if (analysis.key_components && analysis.key_components.length > 0) {
+        addText('Key Components', 16, true, 8);
+        yPosition += 3;
+        analysis.key_components.forEach((component) => {
+          addText(`${component.name} (${component.importance})`, 14, true, 7);
+          addText(component.description, 10, false, 5);
+          yPosition += 3;
+        });
+      }
+
+      if (analysis.best_case) {
+        addText('Best Case Scenario', 16, true, 8);
+        addText(analysis.best_case, 11, false, 6);
+        yPosition += 5;
+      }
+
+      if (analysis.worst_case) {
+        addText('Worst Case Scenario', 16, true, 8);
+        addText(analysis.worst_case, 11, false, 6);
+        yPosition += 5;
+      }
+
+      if (risks.length > 0) {
+        addText('Hidden Risks', 16, true, 8);
+        yPosition += 3;
+        risks.forEach((risk) => {
+          const riskText = typeof risk === 'string' 
+            ? risk 
+            : (risk.risk || risk.description || `${risk.hidden ? 'Hidden: ' : ''}${risk.impact || ''}${risk.warning_signs ? ` Warning: ${risk.warning_signs}` : ''}` || JSON.stringify(risk));
+          addText(`• ${riskText}`, 10, false, 5);
+        });
+        yPosition += 3;
+      }
+
+      if (analysis.strategic_insights) {
+        addText('Strategic Insights', 16, true, 8);
+        addText(analysis.strategic_insights, 11, false, 6);
+        yPosition += 5;
+      }
+
+      if (analysis.potential_applications && analysis.potential_applications.length > 0) {
+        addText('Potential Applications', 16, true, 8);
+        yPosition += 3;
+        analysis.potential_applications.forEach((app) => {
+          addText(`${app.title} (${app.feasibility} feasibility)`, 14, true, 7);
+          addText(app.description, 10, false, 5);
+          yPosition += 3;
+        });
+      }
+
+      if (analysis.next_steps && analysis.next_steps.length > 0) {
+        addText('Next Steps', 16, true, 8);
+        yPosition += 3;
+        analysis.next_steps.forEach((step, idx) => {
+          const stepText = typeof step === 'string' ? step : (step.step || step.description || JSON.stringify(step));
+          addText(`${idx + 1}. ${stepText}`, 10, false, 5);
+        });
+      }
+
+      pdf.save(`${title}_strategic_analysis.pdf`);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('❌ Failed to export to PDF. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -134,9 +476,26 @@ function StrategicAnalysisPage() {
                 <button onClick={handleSave} className="analysis-action save-action">
                   <FaSave /> Save
                 </button>
-                <button className="analysis-action export-action">
-                  <FaDownload /> Export
-                </button>
+                <div className="export-dropdown">
+                  <button className="analysis-action export-action" onClick={(e) => {
+                    e.stopPropagation();
+                    const menu = e.currentTarget.nextElementSibling;
+                    menu.classList.toggle('show');
+                  }}>
+                    <FaDownload /> Export <span className="dropdown-arrow">▼</span>
+                  </button>
+                  <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { handleExport('json'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileAlt /> JSON
+                    </button>
+                    <button onClick={() => { handleExport('word'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFileWord /> Word
+                    </button>
+                    <button onClick={() => { handleExport('pdf'); document.querySelector('.export-menu')?.classList.remove('show'); }} className="export-option">
+                      <FaFilePdf /> PDF
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -195,9 +554,10 @@ function StrategicAnalysisPage() {
                     <div className="next-steps-card">
                       <h3>Next Steps</h3>
                       <ol>
-                        {analysis.next_steps.map((step, idx) => (
-                          <li key={idx}>{step}</li>
-                        ))}
+                        {analysis.next_steps.map((step, idx) => {
+                          const stepText = typeof step === 'string' ? step : (step.step || step.description || JSON.stringify(step));
+                          return <li key={idx}>{stepText}</li>;
+                        })}
                       </ol>
                     </div>
                   )}
@@ -252,12 +612,17 @@ function StrategicAnalysisPage() {
               {activeTab === 'risks' && risks.length > 0 && (
                 <div className="risks-tab-content">
                   <div className="risks-grid">
-                    {risks.map((risk, idx) => (
-                      <div key={idx} className="risk-card">
-                        <FaExclamationTriangle className="risk-icon" />
-                        <p>{risk}</p>
-                      </div>
-                    ))}
+                    {risks.map((risk, idx) => {
+                      const riskText = typeof risk === 'string' 
+                        ? risk 
+                        : (risk.risk || risk.description || `${risk.hidden ? 'Hidden: ' : ''}${risk.impact || ''}${risk.warning_signs ? ` Warning: ${risk.warning_signs}` : ''}` || JSON.stringify(risk));
+                      return (
+                        <div key={idx} className="risk-card">
+                          <FaExclamationTriangle className="risk-icon" />
+                          <p>{riskText}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

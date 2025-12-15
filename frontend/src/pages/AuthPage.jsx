@@ -52,10 +52,10 @@ function AuthPage({ onAuthSuccess }) {
       } else {
         // Sign in should always have a token, but just in case
         window.dispatchEvent(new Event('auth-changed'));
-        if (onAuthSuccess) {
-          onAuthSuccess();
-        }
-        navigate('/');
+      if (onAuthSuccess) {
+        onAuthSuccess();
+      }
+      navigate('/');
       }
       
       // Reset form
@@ -130,68 +130,68 @@ function AuthPage({ onAuthSuccess }) {
               {isSignUp ? 'Create Your Account' : 'Welcome Back'}
             </h2>
             <p className="auth-form-subtitle">
-              {isSignUp 
+          {isSignUp 
                 ? 'Start saving and organizing your transformations' 
-                : 'Sign in to access your saved forges'}
-            </p>
+            : 'Sign in to access your saved forges'}
+        </p>
           </div>
-
+        
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-redesigned">
-            {isSignUp && (
+          {isSignUp && (
               <div className="auth-input-group">
                 <label htmlFor="username" className="auth-input-label">
                   <FaUser className="auth-input-icon" />
                   Username
                 </label>
-                <input
+              <input
                   id="username"
-                  type="text"
+                type="text"
                   placeholder="Choose a username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  required
+                required
                   autoComplete="username"
                   className="auth-input-field"
-                />
-              </div>
-            )}
-            
+              />
+            </div>
+          )}
+          
             <div className="auth-input-group">
               <label htmlFor="email" className="auth-input-label">
                 <FaEnvelope className="auth-input-icon" />
                 Email Address
               </label>
-              <input
-                id="email"
-                type="email"
+            <input
+              id="email"
+              type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
                 className="auth-input-field"
-              />
-            </div>
-            
+            />
+          </div>
+          
             <div className="auth-input-group">
               <label htmlFor="password" className="auth-input-label">
                 <FaLock className="auth-input-icon" />
-                Password
+              Password
                 {isSignUp && <span className="auth-password-hint"> (min. 6 characters)</span>}
-              </label>
+            </label>
               <div className="auth-password-wrapper">
-                <input
-                  id="password"
+            <input
+              id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={isSignUp ? 6 : undefined}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
+              placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={isSignUp ? 6 : undefined}
+              autoComplete={isSignUp ? "new-password" : "current-password"}
                   className="auth-input-field"
-                />
+            />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -201,15 +201,15 @@ function AuthPage({ onAuthSuccess }) {
                   {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-            </div>
+          </div>
 
             {error && (
               <div className="auth-error-message">
                 <FaExclamationCircle className="auth-error-icon" />
                 <span>{error}</span>
-              </div>
-            )}
-
+            </div>
+          )}
+          
             <button 
               type="submit" 
               className="auth-submit-button" 
@@ -223,22 +223,22 @@ function AuthPage({ onAuthSuccess }) {
               ) : (
                 isSignUp ? 'Create Account' : 'Sign In'
               )}
-            </button>
-          </form>
+          </button>
+        </form>
 
           {/* Switch Mode */}
           <div className="auth-switch-mode">
             <span className="auth-switch-text">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}
             </span>
-            <button 
-              type="button"
+          <button 
+            type="button"
               onClick={switchMode}
               className="auth-switch-button"
-            >
+          >
               {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
-          </div>
+          </button>
+        </div>
 
           {/* Footer Info */}
           {isSignUp && (
