@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { savedAPI } from '../services/api';
+import SavedForgeOutput from '../components/SavedForgeOutput';
 import { 
   FaTrash, 
   FaFlask, 
@@ -16,7 +17,17 @@ import {
   FaClock,
   FaChevronRight,
   FaLock,
-  FaSignInAlt
+  FaSignInAlt,
+  FaEye,
+  FaSort,
+  FaSortAmountDown,
+  FaSortAmountUp,
+  FaCheckSquare,
+  FaSquare,
+  FaCheck,
+  FaFileWord,
+  FaFilePdf,
+  FaCopy
 } from 'react-icons/fa';
 
 function StoragePage() {
@@ -27,6 +38,11 @@ function StoragePage() {
   const [selectedForge, setSelectedForge] = useState(null);
   const [filter, setFilter] = useState('all'); // all, strategic_analysis, thought_catalyst, timeline, purification, creative_personas
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('date'); // date, title, type
+  const [sortOrder, setSortOrder] = useState('desc'); // asc, desc
+  const [selectedForges, setSelectedForges] = useState(new Set());
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   useEffect(() => {
     // Check authentication status
@@ -54,6 +70,17 @@ function StoragePage() {
       window.removeEventListener('auth-changed', handleAuthChange);
     };
   }, []);
+
+  // Close sort menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSortMenu && !event.target.closest('.storage-sort-wrapper')) {
+        setShowSortMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showSortMenu]);
 
   const loadForges = async () => {
     setLoading(true);
@@ -107,15 +134,21 @@ function StoragePage() {
     }
   };
 
-  const handleExport = (forge) => {
-    const dataStr = JSON.stringify(forge.output_json, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${forge.title.replace(/[^a-z0-9]/gi, '_')}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleExport = (forge, format = 'json') => {
+    if (format === 'json') {
+      const dataStr = JSON.stringify(forge.output_json, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${forge.title.replace(/[^a-z0-9]/gi, '_')}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    // Word and PDF export would require the same logic as in forge pages
+    // For now, we'll keep it simple with JSON
   };
 
   const filteredForges = forges.filter(forge => {
@@ -124,13 +157,116 @@ function StoragePage() {
       forge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       forge.input_text.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
+  }).sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'date':
+        comparison = new Date(a.created_at) - new Date(b.created_at);
+        break;
+      case 'title':
+        comparison = a.title.localeCompare(b.title);
+        break;
+      case 'type':
+        comparison = a.alchemy_mode.localeCompare(b.alchemy_mode);
+        break;
+      default:
+        comparison = 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
   });
+
+  const toggleSelectForge = (id) => {
+    const newSelected = new Set(selectedForges);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedForges(newSelected);
+    setShowBulkActions(newSelected.size > 0);
+  };
+
+  const selectAll = () => {
+    if (selectedForges.size === filteredForges.length) {
+      setSelectedForges(new Set());
+      setShowBulkActions(false);
+    } else {
+      setSelectedForges(new Set(filteredForges.map(f => f.id)));
+      setShowBulkActions(true);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Delete ${selectedForges.size} transformation(s) permanently?`)) return;
+    try {
+      await Promise.all(Array.from(selectedForges).map(id => savedAPI.delete(id)));
+      setSelectedForges(new Set());
+      setShowBulkActions(false);
+      loadForges();
+      if (selectedForge && selectedForges.has(selectedForge.id)) {
+        setSelectedForge(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete:', error);
+      alert('Failed to delete some transformations. Please try again.');
+    }
+  };
+
+  const handleBulkExport = () => {
+    const selected = filteredForges.filter(f => selectedForges.has(f.id));
+    const data = {
+      exported_at: new Date().toISOString(),
+      count: selected.length,
+      forges: selected.map(f => ({
+        title: f.title,
+        alchemy_mode: f.alchemy_mode,
+        created_at: f.created_at,
+        input_text: f.input_text,
+        output: f.output_json
+      }))
+    };
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `forge_library_export_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const copyInputText = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('✅ Copied to clipboard!');
+  };
 
   const alchemyModeCounts = forges.reduce((acc, forge) => {
     acc[forge.alchemy_mode] = (acc[forge.alchemy_mode] || 0) + 1;
     acc.all = (acc.all || 0) + 1;
     return acc;
   }, { all: forges.length });
+
+  // Statistics
+  const stats = {
+    total: forges.length,
+    byMode: alchemyModeCounts,
+    oldest: forges.length > 0 ? new Date(Math.min(...forges.map(f => new Date(f.created_at).getTime()))) : null,
+    newest: forges.length > 0 ? new Date(Math.max(...forges.map(f => new Date(f.created_at).getTime()))) : null,
+    thisWeek: forges.filter(f => {
+      const date = new Date(f.created_at);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return date >= weekAgo;
+    }).length,
+    thisMonth: forges.filter(f => {
+      const date = new Date(f.created_at);
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      return date >= monthAgo;
+    }).length
+  };
 
   const getModeIcon = (mode) => {
     const icons = {
@@ -218,28 +354,97 @@ function StoragePage() {
               : `${forges.length} transformation${forges.length !== 1 ? 's' : ''} saved`
             }
           </p>
+          {forges.length > 0 && (
+            <div className="storage-stats">
+              <div className="stat-item">
+                <span className="stat-value">{stats.thisWeek}</span>
+                <span className="stat-label">This Week</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{stats.thisMonth}</span>
+                <span className="stat-label">This Month</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{Object.keys(stats.byMode).length - 1}</span>
+                <span className="stat-label">Modes Used</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Search and Filter Bar */}
       <div className="storage-toolbar">
-        <div className="storage-search-wrapper">
-          <FaSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search your transformations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="storage-search-input"
-          />
-          {searchQuery && (
+        <div className="storage-toolbar-left">
+          <div className="storage-search-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search your transformations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="storage-search-input"
+            />
+            {searchQuery && (
+              <button 
+                className="search-clear-btn"
+                onClick={() => setSearchQuery('')}
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="storage-sort-wrapper">
             <button 
-              className="search-clear-btn"
-              onClick={() => setSearchQuery('')}
+              className="sort-button"
+              onClick={() => setShowSortMenu(!showSortMenu)}
             >
-              <FaTimes />
+              <FaSort />
+              <span>Sort</span>
+              {sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
             </button>
-          )}
+            {showSortMenu && (
+              <div className="sort-menu">
+                <div className="sort-option-group">
+                  <label>Sort by:</label>
+                  <button 
+                    className={sortBy === 'date' ? 'active' : ''}
+                    onClick={() => { setSortBy('date'); setShowSortMenu(false); }}
+                  >
+                    Date
+                  </button>
+                  <button 
+                    className={sortBy === 'title' ? 'active' : ''}
+                    onClick={() => { setSortBy('title'); setShowSortMenu(false); }}
+                  >
+                    Title
+                  </button>
+                  <button 
+                    className={sortBy === 'type' ? 'active' : ''}
+                    onClick={() => { setSortBy('type'); setShowSortMenu(false); }}
+                  >
+                    Type
+                  </button>
+                </div>
+                <div className="sort-option-group">
+                  <label>Order:</label>
+                  <button 
+                    className={sortOrder === 'desc' ? 'active' : ''}
+                    onClick={() => { setSortOrder('desc'); setShowSortMenu(false); }}
+                  >
+                    Newest First
+                  </button>
+                  <button 
+                    className={sortOrder === 'asc' ? 'active' : ''}
+                    onClick={() => { setSortOrder('asc'); setShowSortMenu(false); }}
+                  >
+                    Oldest First
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="storage-filters">
@@ -298,6 +503,26 @@ function StoragePage() {
 
       {/* Forge Grid */}
       <div className="storage-content-area">
+        {/* Bulk Actions Bar */}
+        {showBulkActions && (
+          <div className="bulk-actions-bar">
+            <div className="bulk-actions-info">
+              <span>{selectedForges.size} selected</span>
+            </div>
+            <div className="bulk-actions-buttons">
+              <button onClick={handleBulkExport} className="bulk-action-btn">
+                <FaDownload /> Export Selected
+              </button>
+              <button onClick={handleBulkDelete} className="bulk-action-btn danger">
+                <FaTrash /> Delete Selected
+              </button>
+              <button onClick={() => { setSelectedForges(new Set()); setShowBulkActions(false); }} className="bulk-action-btn">
+                <FaTimes /> Clear
+              </button>
+            </div>
+          </div>
+        )}
+
         {filteredForges.length === 0 ? (
           <div className="storage-empty-state">
             <div className="empty-state-icon">📦</div>
@@ -325,76 +550,102 @@ function StoragePage() {
             )}
           </div>
         ) : (
-          <div className="forge-grid-modern">
-            {filteredForges.map((forge) => {
-              const ModeIcon = getModeIcon(forge.alchemy_mode);
-              const modeColor = getModeColor(forge.alchemy_mode);
-              
-              return (
-                <div key={forge.id} className="forge-card-modern" style={{ '--mode-color': modeColor }}>
-                  <div className="forge-card-gradient" style={{ background: `linear-gradient(135deg, ${modeColor}15 0%, ${modeColor}05 100%)` }}></div>
-                  
-                  <div className="forge-card-header-modern">
-                    <div className="forge-mode-indicator" style={{ backgroundColor: modeColor }}>
-                      <ModeIcon />
+          <>
+            <div className="forge-grid-header">
+              <button 
+                className="select-all-btn"
+                onClick={selectAll}
+                title={selectedForges.size === filteredForges.length ? 'Deselect All' : 'Select All'}
+              >
+                {selectedForges.size === filteredForges.length ? <FaCheckSquare /> : <FaSquare />}
+                <span>Select All</span>
+              </button>
+              <span className="forge-count">{filteredForges.length} transformation{filteredForges.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div className="forge-grid-modern">
+              {filteredForges.map((forge) => {
+                const ModeIcon = getModeIcon(forge.alchemy_mode);
+                const modeColor = getModeColor(forge.alchemy_mode);
+                const isSelected = selectedForges.has(forge.id);
+                
+                return (
+                  <div 
+                    key={forge.id} 
+                    data-forge-id={forge.id}
+                    className={`forge-card-modern ${isSelected ? 'selected' : ''}`} 
+                    style={{ '--mode-color': modeColor }}
+                    onClick={(e) => {
+                      if (e.target.closest('.forge-card-checkbox')) return;
+                    }}
+                  >
+                    <div className="forge-card-gradient" style={{ background: `linear-gradient(135deg, ${modeColor}15 0%, ${modeColor}05 100%)` }}></div>
+                    
+                    <div className="forge-card-checkbox" onClick={(e) => { e.stopPropagation(); toggleSelectForge(forge.id); }}>
+                      {isSelected ? <FaCheckSquare /> : <FaSquare />}
                     </div>
-                    <div className="forge-header-content">
-                      <h3 className="forge-card-title">{forge.title}</h3>
-                      <span className="forge-mode-label">{formatModeName(forge.alchemy_mode)}</span>
-                    </div>
-                  </div>
 
-                  <div className="forge-card-body">
-                    <p className="forge-preview-text">
-                      {forge.input_text.substring(0, 120)}
-                      {forge.input_text.length > 120 ? '...' : ''}
-                    </p>
-                    <div className="forge-meta-modern">
-                      <div className="forge-date">
-                        <FaClock />
-                        <span>{new Date(forge.created_at).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric', 
-                          year: 'numeric' 
-                        })}</span>
+                    <div className="forge-card-header-modern">
+                      <div className="forge-mode-indicator" style={{ backgroundColor: modeColor }}>
+                        <ModeIcon />
+                      </div>
+                      <div className="forge-header-content">
+                        <h3 className="forge-card-title">{forge.title}</h3>
+                        <span className="forge-mode-label">{formatModeName(forge.alchemy_mode)}</span>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="forge-card-actions">
-                    <button 
-                      onClick={() => handleViewForge(forge.id)} 
-                      className="forge-action-btn primary"
-                      title="View Details"
-                    >
-                      <FaEye />
-                    </button>
-                    <button 
-                      onClick={() => handleReForge(forge.id)} 
-                      className="forge-action-btn secondary"
-                      title="Re-Forge"
-                    >
-                      <FaSync />
-                    </button>
-                    <button 
-                      onClick={() => handleExport(forge)} 
-                      className="forge-action-btn secondary"
-                      title="Export"
-                    >
-                      <FaDownload />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(forge.id)} 
-                      className="forge-action-btn danger"
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
+                    <div className="forge-card-body">
+                      <p className="forge-preview-text">
+                        {forge.input_text.substring(0, 150)}
+                        {forge.input_text.length > 150 ? '...' : ''}
+                      </p>
+                      <div className="forge-meta-modern">
+                        <div className="forge-date">
+                          <FaClock />
+                          <span>{new Date(forge.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="forge-card-actions">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleViewForge(forge.id); }} 
+                        className="forge-action-btn primary"
+                        title="View Details"
+                      >
+                        <FaEye />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleReForge(forge.id); }} 
+                        className="forge-action-btn secondary"
+                        title="Re-Forge"
+                      >
+                        <FaSync />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleExport(forge); }} 
+                        className="forge-action-btn secondary"
+                        title="Export"
+                      >
+                        <FaDownload />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(forge.id); }} 
+                        className="forge-action-btn danger"
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
@@ -436,10 +687,19 @@ function StoragePage() {
 
             <div className="detail-modal-body">
               <div className="detail-section-modern">
-                <h3 className="detail-section-title">
-                  <FaFileAlt />
-                  Original Input
-                </h3>
+                <div className="detail-section-header">
+                  <h3 className="detail-section-title">
+                    <FaFileAlt />
+                    Original Input
+                  </h3>
+                  <button 
+                    className="detail-copy-btn"
+                    onClick={() => copyInputText(selectedForge.input_text)}
+                    title="Copy to clipboard"
+                  >
+                    <FaCopy />
+                  </button>
+                </div>
                 <div className="detail-text-display">{selectedForge.input_text}</div>
               </div>
 
@@ -448,8 +708,8 @@ function StoragePage() {
                   <FaDownload />
                   Output
                 </h3>
-                <div className="detail-json-display">
-                  <pre>{JSON.stringify(selectedForge.output_json, null, 2)}</pre>
+                <div className="detail-output-display">
+                  <SavedForgeOutput output={selectedForge.output_json} mode={selectedForge.alchemy_mode} />
                 </div>
               </div>
             </div>
@@ -462,13 +722,24 @@ function StoragePage() {
                 <FaSync />
                 Re-Forge This
               </button>
-              <button 
-                onClick={() => handleExport(selectedForge)} 
-                className="detail-action-btn secondary"
-              >
-                <FaDownload />
-                Export JSON
-              </button>
+              <div className="detail-export-dropdown">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const menu = e.currentTarget.nextElementSibling;
+                    menu.classList.toggle('show');
+                  }}
+                  className="detail-action-btn secondary"
+                >
+                  <FaDownload />
+                  Export <span className="dropdown-arrow">▼</span>
+                </button>
+                <div className="detail-export-menu" onClick={(e) => e.stopPropagation()}>
+                  <button onClick={() => { handleExport(selectedForge, 'json'); document.querySelector('.detail-export-menu')?.classList.remove('show'); }} className="export-option">
+                    <FaFileAlt /> JSON
+                  </button>
+                </div>
+              </div>
               <button 
                 onClick={() => {
                   handleDelete(selectedForge.id);
