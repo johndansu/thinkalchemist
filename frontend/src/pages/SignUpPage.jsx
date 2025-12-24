@@ -6,6 +6,7 @@ import { FaFlask, FaUser, FaEnvelope, FaLock, FaArrowLeft, FaCheckCircle, FaExcl
 function SignUpPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +19,7 @@ function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await authAPI.signup(email, password, username);
+      const response = await authAPI.signup(email, password, username, name);
       
       // Check if we have a session token (signup might require email confirmation)
       if (response.session?.access_token) {
@@ -38,6 +39,7 @@ function SignUpPage() {
       }
       
       setUsername('');
+      setName('');
       setEmail('');
       setPassword('');
     } catch (err) {

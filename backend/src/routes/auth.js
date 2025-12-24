@@ -9,7 +9,7 @@ router.post('/signup', async (req, res) => {
       return res.status(503).json({ error: 'Authentication service not configured. Please add Supabase credentials to .env' });
     }
 
-    const { email, password, username } = req.body;
+    const { email, password, username, name } = req.body;
 
     // Validation
     if (!email || !password) {
@@ -28,6 +28,15 @@ router.post('/signup', async (req, res) => {
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
     if (!usernameRegex.test(username)) {
       return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
+    }
+
+    // Name validation
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ error: 'Full name is required' });
+    }
+
+    if (name.length > 100) {
+      return res.status(400).json({ error: 'Full name is too long. Maximum length is 100 characters.' });
     }
 
     // Email validation
@@ -62,6 +71,7 @@ router.post('/signup', async (req, res) => {
       options: {
         data: {
           username: username.toLowerCase(),
+          name: name.trim(),
         }
       }
     });

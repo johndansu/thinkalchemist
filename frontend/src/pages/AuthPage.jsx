@@ -7,6 +7,7 @@ function AuthPage({ onAuthSuccess }) {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ function AuthPage({ onAuthSuccess }) {
     try {
       let response;
       if (isSignUp) {
-        response = await authAPI.signup(email, password, username);
+        response = await authAPI.signup(email, password, username, name);
       } else {
         response = await authAPI.signin(email, password);
       }
@@ -48,6 +49,7 @@ function AuthPage({ onAuthSuccess }) {
         setEmail('');
         setPassword('');
         setUsername('');
+        setName('');
         return;
       } else {
         // Sign in should always have a token, but just in case
@@ -139,22 +141,40 @@ function AuthPage({ onAuthSuccess }) {
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-redesigned">
           {isSignUp && (
-              <div className="auth-input-group">
-                <label htmlFor="username" className="auth-input-label">
-                  <FaUser className="auth-input-icon" />
-                  Username
-                </label>
-              <input
-                  id="username"
-                type="text"
-                  placeholder="Choose a username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                required
-                  autoComplete="username"
-                  className="auth-input-field"
-              />
-            </div>
+              <>
+                <div className="auth-input-group">
+                  <label htmlFor="username" className="auth-input-label">
+                    <FaUser className="auth-input-icon" />
+                    Username
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    placeholder="Choose a username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    autoComplete="username"
+                    className="auth-input-field"
+                  />
+                </div>
+                <div className="auth-input-group">
+                  <label htmlFor="name" className="auth-input-label">
+                    <FaUser className="auth-input-icon" />
+                    Full Name
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    autoComplete="name"
+                    className="auth-input-field"
+                  />
+                </div>
+              </>
           )}
           
             <div className="auth-input-group">

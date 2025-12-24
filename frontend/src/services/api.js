@@ -77,9 +77,9 @@ export const forgeAPI = {
 };
 
 export const authAPI = {
-  signup: async (email, password, username) => {
+  signup: async (email, password, username, name) => {
     try {
-      const response = await api.post('/auth/signup', { email, password, username });
+      const response = await api.post('/auth/signup', { email, password, username, name });
       // Set auth token if session is returned (some providers require email confirmation)
       if (response.data.session?.access_token) {
         localStorage.setItem('auth_token', response.data.session.access_token);

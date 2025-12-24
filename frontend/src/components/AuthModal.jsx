@@ -3,6 +3,8 @@ import { authAPI } from '../services/api';
 
 function AuthModal({ isOpen, onClose, onSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,7 +17,7 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
 
     try {
       if (isSignUp) {
-        await authAPI.signup(email, password);
+        await authAPI.signup(email, password, username, name);
       } else {
         await authAPI.signin(email, password);
       }
@@ -24,6 +26,8 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
       // Reset form
       setEmail('');
       setPassword('');
+      setUsername('');
+      setName('');
     } catch (err) {
       setError(err.response?.data?.error || 'Authentication failed');
     } finally {
@@ -38,6 +42,24 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h2>{isSignUp ? 'Create Account' : 'Sign In'}</h2>
         <form onSubmit={handleSubmit}>
+          {isSignUp && (
+            <>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </>
+          )}
           <input
             type="email"
             placeholder="Email"
