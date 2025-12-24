@@ -161,7 +161,9 @@ async function callOllama(prompt, systemPrompt, temperature, jsonMode) {
 
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for slower models
+    // Increased timeout for complex analyses (strategic analysis, creative personas)
+    const timeoutDuration = 120000; // 120 second timeout for complex analyses
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
     try {
       // Simplified Ollama call - minimal options for speed

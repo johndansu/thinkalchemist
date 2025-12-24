@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000, // 60 second timeout for forge requests
+  timeout: 120000, // 120 second timeout for forge requests (increased for complex analyses)
 });
 
 // Log API configuration on startup
@@ -55,11 +55,21 @@ export const forgeAPI = {
       if (mode) {
         payload.mode = mode;
       }
-      const response = await api.post('/forge/transform', payload);
+      // Use longer timeout for strategic analysis (3 minutes) due to complexity and potential retries
+      const timeout = mode === 'strategic_analysis' ? 180000 : 120000; // 3 minutes for strategic, 2 minutes for others
+      const response = await api.post('/forge/transform', payload, { timeout });
       return response.data;
     } catch (error) {
       // Get detailed error message from response
-      const errorDetails = error.response?.data?.details || error.response?.data?.error || error.message || 'Failed to connect to backend';
+      let errorDetails = error.response?.data?.details || error.response?.data?.error || error.message || 'Failed to connect to backend';
+      
+      // Provide more helpful error messages
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorDetails = `Request timed out. The analysis is taking longer than expected. ${mode === 'strategic_analysis' ? 'Strategic Analysis requires more processing time due to its comprehensive nature. Please try again or use a shorter input.' : 'Please try again.'}`;
+      } else if (error.request && !error.response) {
+        errorDetails = 'Could not reach backend server. Please make sure the backend is running on port 3001.';
+      }
+      
       const fullError = error.response?.data?.message ? `${error.response.data.message}: ${errorDetails}` : errorDetails;
       throw new Error(fullError);
     }

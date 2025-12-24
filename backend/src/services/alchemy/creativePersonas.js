@@ -99,25 +99,34 @@ The world must be IMMERSIVE, VIVID, and FULLY REALIZED:
    - NEVER use generic roles like "Important figure", "Character", "Person", or any placeholder text
    - Each character must be fully developed, not a cardboard cutout
    
-   EXAMPLE OF GOOD CHARACTERS (ALL characters must be like this):
+   EXAMPLE OF GOOD CHARACTERS (ALL characters must be like this - NOTE: These are EXAMPLES ONLY, create roles RELEVANT to your specific input):
    - Name: "Maya Chen" (NOT "Character 1")
-   - Role: "The Curator of Lost Memories" (NOT "Important figure")
+   - Role: "The Curator of Lost Memories" (NOT "Important figure") - NOTE: This role is relevant to a story about preserving information. For YOUR input, create a role that connects to YOUR specific concept.
    - Description: "Maya is a 42-year-old archivist with silver-streaked hair who has spent two decades preserving forgotten stories. She moves through the world with deliberate grace, her hands always slightly stained with ink from her work. Maya is driven by a deep fear that important narratives will be lost forever, and she sees herself as a guardian of truth. She has a complex relationship with technology - she appreciates its power to preserve, but worries about the loss of tangible, physical artifacts. Her greatest desire is to create a bridge between the past and future, ensuring that wisdom isn't lost in the digital age. Maya's flaw is her tendency to hoard information, sometimes preventing her from sharing stories that could help others."
    
    - Name: "Dr. Jameson" (NOT "Character 2")
-   - Role: "The Bridge Builder" (NOT "Generic role")
+   - Role: "The Bridge Builder" (NOT "Generic role") - NOTE: This role is relevant to a story about connecting ideas. For YOUR input, create a role that connects to YOUR specific concept.
    - Description: "Dr. Jameson is a 58-year-old former engineer turned philosopher who believes in connecting disparate worlds. He has a weathered face that tells stories of many journeys, and eyes that seem to see connections others miss. Jameson is motivated by a vision of unity - he wants to break down barriers between different communities and perspectives. He fears fragmentation and isolation, seeing them as the greatest threats to progress. His strength is his ability to translate complex ideas between different domains, but his weakness is his idealism - he sometimes fails to see the practical obstacles that prevent his visions from becoming reality."
    
    REQUIREMENTS FOR ALL 6-8 CHARACTERS:
-   - Each must have a unique, memorable name (like "Maya Chen", "Dr. Jameson", "Elena Vasquez", "The Keeper of Stories")
-   - Each must have a specific, interesting role (like "The Curator of Lost Memories", "The Bridge Builder", "The Whisperer of Secrets")
+   - Each must have a unique, memorable name (like "Maya Chen", "Dr. Jameson", "Elena Vasquez")
+   - Each must have a specific, interesting, CREATIVE role that is DIRECTLY RELEVANT to the input/story you're creating
+   - CRITICAL: Roles must be CONTEXT-SPECIFIC and RELEVANT to the input concept, NOT generic creative titles
+   - DO NOT copy the example roles ("The Curator of Lost Memories", "The Bridge Builder") - these are just examples of the STYLE, not templates to copy
+   - Create roles that connect to YOUR specific input: If the input is about fitness, roles might be "The Catalyst of Transformation", "The Guardian of Momentum", etc. If it's about education, roles might be "The Keeper of Knowledge", "The Igniter of Curiosity", etc.
+   - Roles should be poetic, metaphorical, or descriptive - they should hint at the character's purpose and personality IN THE CONTEXT OF YOUR STORY
+   - BAD roles: "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager" (too generic)
+   - ALSO BAD: Copying example roles like "The Curator of Lost Memories" when they don't relate to your input (this shows you didn't think about relevance)
+   - Each role must make sense in the context of the world and story you're creating
    - Each description must be 5-7 sentences of rich, detailed content (like the examples above)
    - Include: What drives them, what they fear, what they want, how they interact with the world
-   - Show how they connect to or represent aspects of the personas
+   - Show how they connect to or represent aspects of the personas AND the input concept
    - Make them feel like real people with depth
    - Create a diverse cast with different roles, backgrounds, and perspectives
    - NO GENERIC PLACEHOLDERS - every character must be unique and compelling
+   - NO GENERIC CREATIVE TITLES - every role must be relevant to YOUR specific input
    - ALL characters must be equally detailed - do not make some detailed and others generic
+   - Think: "What role would this character have in THIS specific world/story?" - not "What's a creative-sounding role?"
 
 3. CONFLICT (Meaningful, compelling):
    - 5-7 sentences minimum
@@ -211,11 +220,21 @@ Return JSON with:
    - Does character 4 have a unique name? (NOT "Character 4")
    - Does character 5 have a unique name? (NOT "Character 5")
    - Does character 6 have a unique name? (NOT "Character 6")
-3. Verify EACH character has a specific role (not "Important figure" or generic text)
+3. Verify EACH character has a specific, CREATIVE role (not "Important figure", "Character", "Person", "Leader", "Researcher", or any generic job title - roles should be descriptive and poetic like "The Curator of Lost Memories" or "The Bridge Builder")
 4. Verify EACH character description is 5-7 sentences long and as detailed as the first character
 5. Make sure ALL characters are equally detailed - do not make the first 2 detailed and then use generic placeholders for the rest
 
-CRITICAL: If ANY character has a generic name, generic role, or generic description, REPLACE IT with a fully developed character. ALL 6+ characters must be unique and detailed.
+CRITICAL: If ANY character has a generic name, generic role (like "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager"), generic description, OR a role copied from examples that doesn't relate to the input, REPLACE IT with a fully developed character. ALL 6+ characters must be unique and detailed.
+
+ROLE REQUIREMENTS (MANDATORY):
+- Roles must be CREATIVE, DESCRIPTIVE, AND RELEVANT to the input/story
+- DO NOT copy example roles like "The Curator of Lost Memories" or "The Bridge Builder" - these are just style examples
+- Create roles that connect to YOUR specific input concept
+- Examples of GOOD roles (context-specific): For a fitness app: "The Catalyst of Transformation", "The Guardian of Momentum". For an education platform: "The Keeper of Knowledge", "The Igniter of Curiosity". For a social network: "The Weaver of Connections", "The Bridge Between Worlds".
+- Examples of BAD roles (DO NOT USE): "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager", "Director", "Expert"
+- ALSO BAD: Using example roles like "The Curator of Lost Memories" when they don't relate to your input (shows lack of relevance)
+- Roles should be poetic, metaphorical, or descriptive - they should tell a story about who the character is IN THE CONTEXT OF YOUR STORY
+- Each role should be unique, memorable, AND relevant to the world you're creating
 
 Input to transform: {input}`;
 
@@ -248,17 +267,25 @@ QUALITY STANDARDS:
 
   // Add extra emphasis for retries
   if (retryCount > 0) {
-    systemPrompt += `\n\n⚠️ RETRY ATTEMPT ${retryCount + 1}: Previous attempt failed because insufficient characters were generated.`;
+    systemPrompt += `\n\n⚠️ RETRY ATTEMPT ${retryCount + 1}: Previous attempt failed because insufficient characters were generated OR generic roles were detected.`;
     systemPrompt += `\n\n🚨 CRITICAL: You MUST generate AT LEAST 6 characters. This is absolutely mandatory.`;
+    systemPrompt += `\n\n🚨 CRITICAL: You MUST use CREATIVE, DESCRIPTIVE roles that are RELEVANT to the input/story - NOT generic job titles like "Leader", "Researcher", "Teacher", "Manager".`;
+    systemPrompt += `\n\n🚨 CRITICAL: DO NOT copy example roles like "The Curator of Lost Memories" or "The Bridge Builder" - create roles that connect to YOUR specific input concept.`;
     systemPrompt += `\n\nCount your characters before returning: 1, 2, 3, 4, 5, 6 (minimum), 7, 8 (ideal).`;
+    systemPrompt += `\n\nVerify each role is creative, descriptive, AND relevant to the input - if any role is generic or copied from examples without relevance, replace it with a poetic, metaphorical role that tells a story ABOUT YOUR SPECIFIC INPUT.`;
   }
 
-  systemPrompt += `\n\nCRITICAL CHARACTER REQUIREMENTS (MANDATORY - RESPONSE WILL BE REJECTED IF NOT MET):
+    systemPrompt += `\n\nCRITICAL CHARACTER REQUIREMENTS (MANDATORY - RESPONSE WILL BE REJECTED IF NOT MET):
 - Generate EXACTLY 6-8 characters (MINIMUM 6, NO EXCEPTIONS - THIS IS THE MOST IMPORTANT REQUIREMENT)
 - EVERY SINGLE CHARACTER must be as detailed and unique as the first one
 - Do NOT create 2-3 good characters and then use generic placeholders for the rest
 - Each character MUST have a unique, memorable name (NOT "Character 1", "Character 2", "Character X", or any variation)
-- Each character MUST have a specific, interesting role (NOT "Important figure", "Character", "Person", or any generic description)
+- Each character MUST have a specific, CREATIVE, DESCRIPTIVE role that is RELEVANT to the input/story (NOT "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager", or any generic job title)
+- DO NOT copy example roles like "The Curator of Lost Memories" or "The Bridge Builder" - these are style examples only, create roles relevant to YOUR input
+- GOOD role examples (context-specific): For fitness: "The Catalyst of Transformation". For education: "The Keeper of Knowledge". For social: "The Weaver of Connections". Create roles that connect to YOUR input.
+- BAD role examples (DO NOT USE): "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager", "Director", "Expert"
+- ALSO BAD: Copying example roles when they don't relate to your input (shows lack of relevance)
+- Roles must be poetic, metaphorical, or descriptive - they should hint at the character's purpose and personality IN THE CONTEXT OF YOUR STORY
 - Each character description MUST be 5-7 sentences of rich, detailed content
 - ALL characters must be equally detailed - treat character #6 with the same care as character #1
 - NO generic placeholders - every character must be fully developed and unique
@@ -273,7 +300,7 @@ VERIFICATION CHECKLIST BEFORE RETURNING JSON (CHECK EACH ONE CAREFULLY):
 ✓ Does character #4 have a unique, non-generic name? (Check it)
 ✓ Does character #5 have a unique, non-generic name? (Check it)
 ✓ Does character #6 have a unique, non-generic name? (Check it)
-✓ Does EACH character have a specific, non-generic role?
+✓ Does EACH character have a specific, CREATIVE, non-generic role that is RELEVANT to the input? (NOT "Important figure", "Character", "Person", "Leader", "Researcher", "Teacher", "Manager" - also NOT copying example roles like "The Curator of Lost Memories" if they don't relate to your input - must be descriptive, poetic, AND contextually relevant)
 ✓ Is EACH character description at least 5-7 sentences and substantial?
 ✓ Are ALL characters fully developed and unique? (Not just the first 2-3)
 
@@ -332,6 +359,85 @@ Always return valid JSON with both "personas" array (5-7 personas) and "world" o
       throw new Error('No characters generated - world must include at least 6-8 fully developed characters');
     }
     
+    // First, check for generic roles in the original array before filtering
+    const genericRolePatterns = [
+      'important figure',
+      'generic',
+      'character',
+      'person',
+      'individual',
+      'member',
+      'figure',
+      'role',
+      'placeholder'
+    ];
+    
+    const genericJobTitles = [
+      'leader',
+      'researcher',
+      'teacher',
+      'manager',
+      'director',
+      'expert',
+      'specialist',
+      'professional',
+      'worker',
+      'employee',
+      'staff'
+    ];
+    
+    // Example roles that should NOT be copied (they're just style examples)
+    const exampleRolesToAvoid = [
+      'curator of lost memories',
+      'bridge builder',
+      'whisperer of secrets',
+      'keeper of ancient wisdom',
+      'weaver of connections',
+      'guardian of truth',
+      'keeper of stories',
+      'weaver of dreams'
+    ];
+    
+    let hasGenericRoles = false;
+    const originalCharacters = [...parsed.world.characters];
+    
+    // Check original characters for generic roles
+    for (const char of originalCharacters) {
+      if (!char.role) {
+        hasGenericRoles = true;
+        break;
+      }
+      
+      const roleLower = char.role.toLowerCase().trim();
+      
+      // Check for generic patterns
+      if (genericRolePatterns.some(pattern => roleLower.includes(pattern))) {
+        hasGenericRoles = true;
+        break;
+      }
+      
+      // Check for generic job titles (exact match or "The [Title]")
+      if (genericJobTitles.some(title => {
+        return roleLower === title || 
+               roleLower === `the ${title}` ||
+               roleLower === `${title}` ||
+               roleLower.startsWith(`${title} `) ||
+               roleLower.startsWith(`the ${title} `);
+      })) {
+        hasGenericRoles = true;
+        break;
+      }
+      
+      // Check if role is copied from examples (these should be context-specific, not copied)
+      if (exampleRolesToAvoid.some(example => {
+        return roleLower.includes(example) || roleLower === `the ${example}`;
+      })) {
+        // Note: We'll flag this but be lenient - sometimes these roles might actually fit
+        // The main issue is when they're used without relevance to the input
+        // We'll rely on the prompt instructions to prevent this
+      }
+    }
+    
     // Validate and filter characters - remove any generic placeholders
     parsed.world.characters = parsed.world.characters
       .map((char, idx) => {
@@ -343,10 +449,28 @@ Always return valid JSON with both "personas" array (5-7 personas) and "world" o
           return null; // Mark for removal
         }
         
+        // Check for generic roles - reject common generic terms
+        const roleLower = (char.role || '').toLowerCase().trim();
+        
         if (!char.role || 
-            char.role.toLowerCase().includes('important figure') ||
-            char.role.toLowerCase().includes('generic')) {
+            genericRolePatterns.some(pattern => roleLower.includes(pattern)) ||
+            genericJobTitles.some(title => {
+              return roleLower === title || 
+                     roleLower === `the ${title}` ||
+                     roleLower === `${title}` ||
+                     roleLower.startsWith(`${title} `) ||
+                     roleLower.startsWith(`the ${title} `);
+            })) {
           return null; // Mark for removal
+        }
+        
+        // Ensure role is descriptive and creative (not just a simple job title)
+        // Good roles typically have descriptive phrases like "The [Descriptive] of [Something]"
+        // or are more than 2-3 words
+        const roleWords = char.role.split(/\s+/).length;
+        if (roleWords < 3 && !char.role.toLowerCase().startsWith('the ')) {
+          // If it's a very short role and doesn't start with "The", it might be too generic
+          // But we'll be lenient here and only reject if it matches known generic patterns
         }
         
         // Ensure description is substantial and not generic
@@ -365,17 +489,19 @@ Always return valid JSON with both "personas" array (5-7 personas) and "world" o
       })
       .filter(char => char !== null); // Remove null entries
     
-    // CRITICAL: Must have at least 6 characters - retry if not enough
-    if (parsed.world.characters.length < 6) {
-      const errorMsg = `Insufficient characters generated: ${parsed.world.characters.length} valid characters found. Required minimum: 6 characters.`;
+    // CRITICAL: Check for generic roles OR insufficient characters - retry if either issue
+    if (hasGenericRoles || parsed.world.characters.length < 6) {
+      const errorMsg = hasGenericRoles 
+        ? `Generic roles detected in character generation. Found roles that are too generic (like "Leader", "Researcher", "Teacher", "Manager", etc.). Required: Creative, descriptive roles like "The Curator of Lost Memories" or "The Bridge Builder".`
+        : `Insufficient characters generated: ${parsed.world.characters.length} valid characters found. Required minimum: 6 characters with creative, descriptive roles.`;
       
       if (retryCount < maxRetries) {
         console.warn(`${errorMsg} Retrying... (Attempt ${retryCount + 2}/${maxRetries + 1})`);
-        // Retry with more explicit instructions
+        // Retry with more explicit instructions about roles
         return await generateCreativePersonas(inputText, retryCount + 1);
       } else {
         console.error(`${errorMsg} Max retries reached.`);
-        throw new Error(`${errorMsg} The LLM must generate 6-8 fully developed characters with unique names and specific roles.`);
+        throw new Error(`${errorMsg} The LLM must generate 6-8 fully developed characters with unique names and CREATIVE, DESCRIPTIVE roles (not generic job titles).`);
       }
     }
     
