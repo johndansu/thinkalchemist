@@ -8,7 +8,8 @@
     "server": "vite",
     "start": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "vercel-build": "vite build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
