@@ -53,14 +53,19 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       // Server responded with error
-      console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response.status}`, error.response.data);
+      const errorData = error.response.data;
+      const errorStr = typeof errorData === 'object' 
+        ? JSON.stringify(errorData, null, 2)
+        : errorData;
+      console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response.status}`);
+      console.error('Error details:', errorStr);
     } else if (error.request) {
       // Request made but no response (network error)
       console.error(`❌ Network Error: Could not reach backend at ${error.config?.baseURL}${error.config?.url}`);
       console.error('💡 Make sure the backend server is running on port 3001');
     } else {
       // Something else happened
-      console.error('❌ API Error:', error.message);
+      console.error('❌ API Error:', error.message || error);
     }
     return Promise.reject(error);
   }
@@ -106,7 +111,27 @@ export const authAPI = {
       }
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to sign up';
+      // Extract error message properly, handling both string and object responses
+      let errorMessage = 'Failed to sign up';
+      
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.error) {
+          errorMessage = typeof error.response.data.error === 'string' 
+            ? error.response.data.error 
+            : JSON.stringify(error.response.data.error);
+        } else if (error.response.data.message) {
+          errorMessage = typeof error.response.data.message === 'string'
+            ? error.response.data.message
+            : JSON.stringify(error.response.data.message);
+        } else {
+          errorMessage = JSON.stringify(error.response.data);
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       throw new Error(errorMessage);
     }
   },

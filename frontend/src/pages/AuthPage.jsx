@@ -65,7 +65,27 @@ function AuthPage({ onAuthSuccess }) {
       setEmail('');
       setPassword('');
     } catch (err) {
-      const errorMessage = err.message || err.response?.data?.error || 'Authentication failed';
+      // Extract error message properly, handling both string and object responses
+      let errorMessage = 'Authentication failed';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.error) {
+          errorMessage = typeof err.response.data.error === 'string'
+            ? err.response.data.error
+            : String(err.response.data.error);
+        } else if (err.response.data.message) {
+          errorMessage = typeof err.response.data.message === 'string'
+            ? err.response.data.message
+            : String(err.response.data.message);
+        } else {
+          errorMessage = 'An error occurred. Please try again.';
+        }
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
