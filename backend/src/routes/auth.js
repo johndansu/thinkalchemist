@@ -5,8 +5,25 @@ const { supabase } = require('../config/database');
 // Sign up
 router.post('/signup', async (req, res) => {
   try {
+    // Check Supabase configuration
     if (!supabase) {
-      return res.status(503).json({ error: 'Authentication service not configured. Please add Supabase credentials to .env' });
+      console.error('Supabase not initialized. Check environment variables.');
+      return res.status(503).json({ 
+        error: 'Authentication service not configured. Please add Supabase credentials to environment variables.',
+        code: '503'
+      });
+    }
+    
+    // Verify Supabase is working by checking if we can access it
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+      console.error('Missing Supabase environment variables:', {
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasAnonKey: !!process.env.SUPABASE_ANON_KEY
+      });
+      return res.status(503).json({ 
+        error: 'Supabase configuration incomplete. Missing SUPABASE_URL or SUPABASE_ANON_KEY.',
+        code: '503'
+      });
     }
 
     const { email, password, username, name } = req.body;

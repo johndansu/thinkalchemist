@@ -32,9 +32,17 @@ console.log('Environment check:', {
   envFileLoaded: envLoaded
 });
 
-const forgeRoutes = require('../backend/src/routes/forge');
-const authRoutes = require('../backend/src/routes/auth');
-const savedRoutes = require('../backend/src/routes/saved');
+// Load routes with error handling
+let forgeRoutes, authRoutes, savedRoutes;
+try {
+  forgeRoutes = require('../backend/src/routes/forge');
+  authRoutes = require('../backend/src/routes/auth');
+  savedRoutes = require('../backend/src/routes/saved');
+} catch (error) {
+  console.error('Failed to load routes:', error);
+  console.error('Stack:', error.stack);
+  throw error; // Fail fast if routes can't be loaded
+}
 
 const app = express();
 
@@ -117,16 +125,42 @@ app.get('/test-ollama', async (req, res) => {
   }
 });
 
-// Error handling middleware
+// Error handling middleware - must be last
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  console.error('Express Error Handler:', err);
+  console.error('Error stack:', err.stack);
+  console.error('Error details:', {
+    message: err.message,
+    name: err.name,
+    code: err.code,
+    status: err.status
+  });
+  
+  const statusCode = err.status || 500;
+  const errorMessage = err.message || 'Internal server error';
+  
+  res.status(statusCode).json({
+    error: errorMessage,
+    code: statusCode.toString(),
+    ...(process.env.NODE_ENV !== 'production' && { 
+      details: err.message,
+      stack: err.stack 
+    })
   });
 });
 
-// Export the Express app as a serverless function
-// Vercel will automatically handle this as a serverless function
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  console.error('Stack:', error.stack);
+});
+
+// Export the Express app for Vercel
+// Vercel handles Express apps automatically
 module.exports = app;
 
