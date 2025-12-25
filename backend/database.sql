@@ -56,3 +56,26 @@ CREATE TRIGGER update_forges_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+-- Usernames table for username uniqueness
+CREATE TABLE IF NOT EXISTS usernames (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
+  username TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for faster username lookups
+CREATE INDEX IF NOT EXISTS idx_usernames_username ON usernames(username);
+CREATE INDEX IF NOT EXISTS idx_usernames_user_id ON usernames(user_id);
+
+-- Function to check if username is available
+CREATE OR REPLACE FUNCTION check_username_available(check_username TEXT)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN NOT EXISTS (
+    SELECT 1 FROM usernames 
+    WHERE username = LOWER(check_username)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+

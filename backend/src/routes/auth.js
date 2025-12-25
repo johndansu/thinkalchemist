@@ -54,14 +54,43 @@ router.post('/signup', async (req, res) => {
     }
 
     // Check if username is available
-    const { data: usernameCheck, error: usernameError } = await supabase
-      .rpc('check_username_available', { check_username: username.toLowerCase() });
+    try {
+      const { data: usernameCheck, error: usernameError } = await supabase
+        .rpc('check_username_available', { check_username: username.toLowerCase() });
 
-    if (usernameError) {
-      console.error('Username check error:', usernameError);
-      // Continue if function doesn't exist yet (for backwards compatibility)
-    } else if (usernameCheck === false) {
-      return res.status(400).json({ error: 'Username is already taken' });
+      if (usernameError) {
+        console.error('Username check error:', usernameError);
+        // Continue if function doesn't exist yet (for backwards compatibility)
+        // Also check manually if RPC function doesn't exist
+        const { data: existingUsername } = await supabase
+          .from('usernames')
+          .select('user_id')
+          .eq('username', username.toLowerCase())
+          .single();
+        
+        if (existingUsername) {
+          return res.status(400).json({ error: 'Username is already taken' });
+        }
+      } else if (usernameCheck === false) {
+        return res.status(400).json({ error: 'Username is already taken' });
+      }
+    } catch (usernameCheckErr) {
+      console.error('Username check exception:', usernameCheckErr);
+      // Try manual check as fallback
+      try {
+        const { data: existingUsername } = await supabase
+          .from('usernames')
+          .select('user_id')
+          .eq('username', username.toLowerCase())
+          .single();
+        
+        if (existingUsername) {
+          return res.status(400).json({ error: 'Username is already taken' });
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback username check error:', fallbackErr);
+        // Continue with signup if we can't check - uniqueness will be enforced by database
+      }
     }
 
     // Sign up with Supabase
@@ -84,16 +113,28 @@ router.post('/signup', async (req, res) => {
 
     // Store username in usernames table for uniqueness
     if (data.user) {
-      const { error: usernameInsertError } = await supabase
-        .from('usernames')
-        .insert({
-          username: username.toLowerCase(),
-          user_id: data.user.id
-        });
+      try {
+        const { error: usernameInsertError } = await supabase
+          .from('usernames')
+          .insert({
+            username: username.toLowerCase(),
+            user_id: data.user.id
+          });
 
-      if (usernameInsertError) {
-        console.error('Failed to store username:', usernameInsertError);
-        // Don't fail signup if username storage fails, but log it
+        if (usernameInsertError) {
+          console.error('Failed to store username:', usernameInsertError);
+          console.error('Username insert error details:', {
+            code: usernameInsertError.code,
+            message: usernameInsertError.message,
+            details: usernameInsertError.details,
+            hint: usernameInsertError.hint
+          });
+          // Don't fail signup if username storage fails, but log it
+          // This could happen if the usernames table doesn't exist or has constraints
+        }
+      } catch (usernameInsertException) {
+        console.error('Username insert exception:', usernameInsertException);
+        // Don't fail signup if username storage fails
       }
     }
 
@@ -104,7 +145,27 @@ router.post('/signup', async (req, res) => {
     });
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ error: 'Failed to create account' });
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      code: error.code
+    });
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to create account';
+    if (error.message) {
+      errorMessage = error.message;
+    } else if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Database connection failed. Please check your Supabase configuration.';
+    } else if (error.code === 'ENOTFOUND') {
+      errorMessage = 'Could not reach database. Please check your Supabase URL.';
+    }
+    
+    res.status(500).json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
