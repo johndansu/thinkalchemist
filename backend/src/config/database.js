@@ -1,6 +1,31 @@
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
+// Load environment variables - try multiple locations
+// On Vercel, env vars are set directly, but we try .env files for local development
+const envPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(__dirname, '../../backend/.env'),
+  path.resolve(process.cwd(), '.env')
+];
+
+let envLoaded = false;
+for (const envPath of envPaths) {
+  try {
+    require('dotenv').config({ path: envPath });
+    if (process.env.SUPABASE_URL) {
+      envLoaded = true;
+      break;
+    }
+  } catch (e) {
+    // Continue to next path
+  }
+}
+
+// If no .env file found, environment variables should be set directly (e.g., on Vercel)
+if (!envLoaded && !process.env.SUPABASE_URL) {
+  console.log('No .env file found - using environment variables directly');
+}
 
 const supabaseUrl = process.env.SUPABASE_URL;
 // Use service role key if it exists and matches the project, otherwise use anon key

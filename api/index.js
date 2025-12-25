@@ -3,23 +3,34 @@ const cors = require('cors');
 const path = require('path');
 
 // Load environment variables from multiple possible locations
+// On Vercel, env vars are set directly, but we try .env files for local development
 const envPaths = [
   path.resolve(__dirname, '../backend/.env'),
   path.resolve(__dirname, '../.env'),
   path.resolve(process.cwd(), '.env')
 ];
 
+let envLoaded = false;
 for (const envPath of envPaths) {
   try {
     require('dotenv').config({ path: envPath });
     if (process.env.SUPABASE_URL) {
       console.log(`✅ Loaded .env from: ${envPath}`);
+      envLoaded = true;
       break;
     }
   } catch (e) {
     // Continue to next path
   }
 }
+
+// Log environment status (without exposing secrets)
+console.log('Environment check:', {
+  hasSupabaseUrl: !!process.env.SUPABASE_URL,
+  hasSupabaseAnonKey: !!process.env.SUPABASE_ANON_KEY,
+  nodeEnv: process.env.NODE_ENV,
+  envFileLoaded: envLoaded
+});
 
 const forgeRoutes = require('../backend/src/routes/forge');
 const authRoutes = require('../backend/src/routes/auth');

@@ -53,44 +53,38 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Password is too long' });
     }
 
-    // Check if username is available
+    // Check if username is available (optional - continue if check fails)
     try {
-      const { data: usernameCheck, error: usernameError } = await supabase
-        .rpc('check_username_available', { check_username: username.toLowerCase() });
+      try {
+        const { data: usernameCheck, error: usernameError } = await supabase
+          .rpc('check_username_available', { check_username: username.toLowerCase() });
 
-      if (usernameError) {
-        console.error('Username check error:', usernameError);
-        // Continue if function doesn't exist yet (for backwards compatibility)
-        // Also check manually if RPC function doesn't exist
-        const { data: existingUsername } = await supabase
+        if (!usernameError && usernameCheck === false) {
+          return res.status(400).json({ error: 'Username is already taken' });
+        }
+      } catch (rpcError) {
+        // RPC function might not exist, try direct table query
+        console.log('RPC function not available, trying direct query');
+      }
+
+      // Try direct table check as fallback
+      try {
+        const { data: existingUsername, error: tableError } = await supabase
           .from('usernames')
           .select('user_id')
           .eq('username', username.toLowerCase())
-          .single();
+          .maybeSingle();
         
         if (existingUsername) {
           return res.status(400).json({ error: 'Username is already taken' });
         }
-      } else if (usernameCheck === false) {
-        return res.status(400).json({ error: 'Username is already taken' });
+      } catch (tableError) {
+        // Table might not exist yet - that's okay, we'll create it
+        console.log('Usernames table check failed (table may not exist yet):', tableError?.message);
       }
     } catch (usernameCheckErr) {
-      console.error('Username check exception:', usernameCheckErr);
-      // Try manual check as fallback
-      try {
-        const { data: existingUsername } = await supabase
-          .from('usernames')
-          .select('user_id')
-          .eq('username', username.toLowerCase())
-          .single();
-        
-        if (existingUsername) {
-          return res.status(400).json({ error: 'Username is already taken' });
-        }
-      } catch (fallbackErr) {
-        console.error('Fallback username check error:', fallbackErr);
-        // Continue with signup if we can't check - uniqueness will be enforced by database
-      }
+      // If all username checks fail, continue anyway - signup will still work
+      console.log('Username availability check failed, continuing with signup:', usernameCheckErr?.message);
     }
 
     // Sign up with Supabase
@@ -111,7 +105,7 @@ router.post('/signup', async (req, res) => {
 
     // Signup successful - no logging needed
 
-    // Store username in usernames table for uniqueness
+    // Store username in usernames table for uniqueness (optional - don't fail if this fails)
     if (data.user) {
       try {
         const { error: usernameInsertError } = await supabase
@@ -122,19 +116,13 @@ router.post('/signup', async (req, res) => {
           });
 
         if (usernameInsertError) {
-          console.error('Failed to store username:', usernameInsertError);
-          console.error('Username insert error details:', {
-            code: usernameInsertError.code,
-            message: usernameInsertError.message,
-            details: usernameInsertError.details,
-            hint: usernameInsertError.hint
-          });
-          // Don't fail signup if username storage fails, but log it
-          // This could happen if the usernames table doesn't exist or has constraints
+          // Log but don't fail - the usernames table might not exist yet
+          console.log('Note: Could not store username (table may not exist):', usernameInsertError.message);
+          // This is not critical - signup is still successful
         }
       } catch (usernameInsertException) {
-        console.error('Username insert exception:', usernameInsertException);
-        // Don't fail signup if username storage fails
+        // Silently continue - username storage is optional
+        console.log('Note: Username storage skipped:', usernameInsertException?.message);
       }
     }
 
@@ -154,6 +142,8 @@ router.post('/signup', async (req, res) => {
     
     // Provide more specific error messages
     let errorMessage = 'Failed to create account';
+    let statusCode = 500;
+    
     if (error.message) {
       errorMessage = error.message;
     } else if (error.code === 'ECONNREFUSED') {
@@ -162,10 +152,18 @@ router.post('/signup', async (req, res) => {
       errorMessage = 'Could not reach database. Please check your Supabase URL.';
     }
     
-    res.status(500).json({ 
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    // In development or if error is from Supabase, return more details
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const response = {
+      error: errorMessage
+    };
+    
+    if (isDevelopment) {
+      response.details = error.message;
+      response.stack = error.stack;
+    }
+    
+    res.status(statusCode).json(response);
   }
 });
 
